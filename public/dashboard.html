@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wealth Within Trader</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --bg:         #0f172a;
+  --bg2:        #1e293b;
+  --bg3:        #334155;
+  --border:     #334155;
+  --text:       #f1f5f9;
+  --text2:      #94a3b8;
+  --text3:      #64748b;
+  --green:      #10b981;
+  --green2:     #059669;
+  --green-bg:   rgba(16,185,129,.12);
+  --red:        #ef4444;
+  --red-bg:     rgba(239,68,68,.12);
+  --amber:      #f59e0b;
+  --amber-bg:   rgba(245,158,11,.12);
+  --blue:       #3b82f6;
+  --radius:     12px;
+  --shadow:     0 4px 24px rgba(0,0,0,.35);
+}
+[data-theme="light"] {
+  --bg:    #f8fafc;
+  --bg2:   #ffffff;
+  --bg3:   #f1f5f9;
+  --border:#e2e8f0;
+  --text:  #0f172a;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --shadow:0 4px 24px rgba(0,0,0,.08);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;transition:background .2s,color .2s}
+button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit;color:inherit}
+input,select,textarea{font-family:inherit;font-size:inherit;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 12px;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-bg)}
+a{color:var(--green);text-decoration:none}
+table{border-collapse:collapse;width:100%}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100%;z-index:100;transition:transform .25s}
+.main{flex:1;margin-left:240px;padding:28px;max-width:1400px}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:16px}
+  .mobile-header{display:flex!important}
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.logo{padding:20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-mark{width:36px;height:36px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+.logo-text{font-weight:700;font-size:14px;line-height:1.2}
+.logo-sub{font-size:10px;color:var(--text2);font-weight:400}
+.nav{flex:1;overflow-y:auto;padding:12px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .15s,color .15s;color:var(--text2);font-size:13px;font-weight:500;margin-bottom:2px}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--green-bg);color:var(--green)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.nav-section{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;padding:12px 12px 6px}
+.sidebar-bottom{padding:12px 8px;border-top:1px solid var(--border)}
+.theme-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--text2);font-size:13px;width:100%;transition:background .15s}
+.theme-btn:hover{background:var(--bg3);color:var(--text)}
+
+/* ============================================================
+   MOBILE HEADER
+   ============================================================ */
+.mobile-header{display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;align-items:center;justify-content:space-between}
+.hamburger{padding:6px;border-radius:8px;color:var(--text2)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+.overlay.open{display:block}
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+.view{display:none;animation:fadeIn .2s ease-out}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+.page-title{font-size:22px;font-weight:700;margin-bottom:4px}
+.page-sub{color:var(--text2);font-size:13px;margin-bottom:24px}
+.section-title{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-gray{background:var(--bg3);color:var(--text2)}
+.pos{color:var(--green)!important}
+.neg{color:var(--red)!important}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.card-sm{padding:14px 18px}
+.grid{display:grid;gap:16px}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* ============================================================
+   METRIC CARD
+   ============================================================ */
+.metric{display:flex;flex-direction:column;gap:6px}
+.metric-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
+.metric-value{font-size:26px;font-weight:700}
+.metric-sub{font-size:12px;color:var(--text2)}
+.metric-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.metric-icon.green{background:var(--green-bg);color:var(--green)}
+.metric-icon.red{background:var(--red-bg);color:var(--red)}
+.metric-icon.amber{background:var(--amber-bg);color:var(--amber)}
+.metric-icon.blue{background:rgba(59,130,246,.12);color:var(--blue)}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-weight:500;font-size:13px;transition:all .15s;cursor:pointer}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green2)}
+.btn-outline{border:1px solid var(--border);color:var(--text);background:transparent}
+.btn-outline:hover{background:var(--bg3)}
+.btn-danger{background:var(--red-bg);color:var(--red)}
+.btn-danger:hover{background:rgba(239,68,68,.2)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-icon{padding:6px;border-radius:6px;color:var(--text2)}
+.btn-icon:hover{background:var(--bg3);color:var(--text)}
+
+/* ============================================================
+   FORM
+   ============================================================ */
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;color:var(--text2)}
+.form-row{display:grid;gap:12px}
+.form-row-2{grid-template-columns:1fr 1fr}
+.form-row-3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:600px){.form-row-2,.form-row-3{grid-template-columns:1fr}}
+.form-hint{font-size:11px;color:var(--text3)}
+textarea{resize:vertical;min-height:70px}
+.form-section{margin-bottom:20px}
+.form-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}
+.modal-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:0 24px 20px;display:flex;gap:8px;justify-content:flex-end}
+
+/* ============================================================
+   TABLE WRAPPER
+   ============================================================ */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+.table-wrap table{min-width:600px}
+.empty-state{padding:48px 24px;text-align:center;color:var(--text2)}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.3}
+.empty-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+.tabs{display:flex;gap:4px;background:var(--bg3);padding:4px;border-radius:10px;margin-bottom:20px;width:fit-content}
+.tab{padding:6px 14px;border-radius:7px;font-size:13px;font-weight:500;color:var(--text2);transition:all .15s}
+.tab.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.tab:hover:not(.active){color:var(--text)}
+
+/* ============================================================
+   CHART CONTAINERS
+   ============================================================ */
+.chart-wrap{position:relative;height:220px}
+
+/* ============================================================
+   INFO BOX
+   ============================================================ */
+.info-box{background:var(--green-bg);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:14px 16px;font-size:12px;color:var(--text2);line-height:1.6}
+.info-box strong{color:var(--green)}
+
+/* ============================================================
+   WATCHLIST CARDS
+   ============================================================ */
+.watch-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:box-shadow .15s}
+.watch-card:hover{box-shadow:var(--shadow)}
+.watch-ticker{font-size:20px;font-weight:700}
+.watch-name{font-size:12px;color:var(--text2)}
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+.progress-bg{background:var(--bg3);border-radius:4px;height:8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width .5s}
+
+/* ============================================================
+   NOTIFICATION TOAST
+   ============================================================ */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.error{background:var(--red)}
+
+/* ============================================================
+   STRATEGY PILL
+   ============================================================ */
+.strategy-pill{font-size:10px;background:rgba(59,130,246,.12);color:var(--blue);padding:2px 7px;border-radius:20px;font-weight:600;white-space:nowrap}
+
+/* ============================================================
+   MISC
+   ============================================================ */
+.flex{display:flex}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+.gap-2{gap:8px}
+.gap-3{gap:12px}
+.gap-4{gap:16px}
+.mt-2{margin-top:8px}
+.mt-4{margin-top:16px}
+.mt-6{margin-top:24px}
+.mb-4{margin-bottom:16px}
+.text-sm{font-size:12px}
+.text-xs{font-size:11px}
+.text-right{text-align:right}
+.font-bold{font-weight:700}
+.font-medium{font-weight:500}
+.w-full{width:100%}
+hr{border:none;border-top:1px solid var(--border);margin:16px 0}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MOBILE HEADER -->
+<div class="mobile-header" id="mobileHeader">
+  <button class="hamburger" onclick="toggleSidebar()">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <span style="font-weight:700">WW Trader</span>
+  <button class="btn-icon" onclick="toggleTheme()">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="themeIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  </button>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="app">
+<!-- ============================================================
+     SIDEBAR
+     ============================================================ -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-mark">WW</div>
+    <div><div class="logo-text">WW Trader</div><div class="logo-sub">Wealth Within Institute</div></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active" onclick="showView('dashboard',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="showView('portfolio',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      Portfolio
+    </div>
+    <div class="nav-item" onclick="showView('journal',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Trade Journal
+    </div>
+    <div class="nav-item" onclick="showView('performance',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Performance
+    </div>
+    <div class="nav-item" onclick="showView('watchlist',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Watchlist
+    </div>
+    <div class="nav-item" onclick="showView('plan',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Trading Plan
+    </div>
+    <div class="nav-section">Reference</div>
+    <div class="nav-item" onclick="showView('theory',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      WW Theory Guide
+    </div>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="theme-btn" onclick="toggleTheme()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="sideThemeIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <span id="themeLabel">Light Mode</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<main class="main" style="padding-top:0">
+  <div style="height:16px" class="mobile-spacer"></div>
+
+  <!-- ========================================================
+       VIEW: DASHBOARD
+       ======================================================== -->
+  <div class="view active" id="view-dashboard">
+    <div class="flex justify-between items-center mb-4" style="margin-top:4px">
+      <div>
+        <div class="page-title" id="greetingTitle">Good morning, Trader 👋</div>
+        <div class="page-sub" id="fyLabel">FY25/26 · Wealth Within Institute</div>
+      </div>
+      <button class="btn btn-primary" onclick="openTradeModal()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Trade
+      </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-4 mb-4" id="summaryCards">
+      <!-- populated by JS -->
+    </div>
+
+    <!-- Charts row -->
+    <div class="grid grid-2 mb-4">
+      <div class="card">
+        <div class="section-title">Portfolio P&amp;L Trend</div>
+        <div class="chart-wrap"><canvas id="pnlChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Strategy Distribution</div>
+        <div class="chart-wrap"><canvas id="strategyChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Recent Trades -->
+    <div class="card">
+      <div class="flex justify-between items-center mb-4">
+        <div class="section-title" style="margin:0">Recent Trades</div>
+        <button class="btn btn-outline btn-sm" onclick="showView('journal', document.querySelector('[onclick*=journal]'))">View All</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Ticker</th><th>Dir</th><th>Qty</th><th>Price</th><th>Total</th><th>Strategy</th></tr></thead>
+          <tbody id="recentTradesBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WW Reference Quick Links -->
+    <div class="mt-6">
+      <div class="section-title">Wealth Within Module Reference</div>
+      <div class="grid grid-3">
+        <div class="card card-sm" style="cursor:pointer" onclick="showView('theory', document.querySelector('[onclick*=theory]'))">
+          <div style="font-size:10px;color:var(--green);font-weight:600;margin-bottom:4px">MODULE 3</div>
+          <div style="font-weight:600;margin-bottom:4px">Dow's Trend Theory</div>
+          <div style="font-size:12px;color:var(--text2)">Entry on confirmed higher highs/higher lows with rising volume</div>
+        </div>
+        <div class="card card-sm" style="cursor:pointer" onclick="showView('theory', document.querySelector('[onclick*=theory]'))">
+          <div style="font-size:10px;color:var(--green);font-weight:600;margin-bottom:4px">MODULE 3</div>
+          <div style="font-weight:600;margin-bottom:4px">Gann's Swing Theory</div>
+          <div style="font-size:12px;color:var(--text2)">Swing high/low identification for entry and stop placement</div>
+        </div>
+        <div class="card card-sm" style="cursor:pointer" onclick="showView('theory', document.querySelector('[onclick*=theory]'))">
+          <div style="font-size:10px;color:var(--green);font-weight:600;margin-bottom:4px">MODULE 1</div>
+          <div style="font-weight:600;margin-bottom:4px">Top-Down Analysis</div>
+          <div style="font-size:12px;color:var(--text2)">Market → Sector → Stock: trade leading stocks in leading sectors</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       VIEW: PORTFOLIO
+       ======================================================== -->
+  <div class="view" id="view-portfolio">
+    <div class="flex justify-between items-center">
+      <div><div class="page-title">Portfolio</div><div class="page-sub">Your current holdings &amp; positions</div></div>
+      <button class="btn btn-primary" onclick="openTradeModal()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Trade
+      </button>
+    </div>
+    <div class="grid grid-4 mb-4 mt-2" id="portfolioSummaryCards"></div>
+    <div class="card">
+      <div class="section-title">Holdings</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ticker</th><th>Company</th><th>Qty</th><th>Avg Cost</th><th>Total Cost</th><th>Cur. Price</th><th>Mkt Value</th><th>P&amp;L $</th><th>P&amp;L %</th><th>First Buy</th><th></th></tr></thead>
+          <tbody id="holdingsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       VIEW: TRADE JOURNAL
+       ======================================================== -->
+  <div class="view" id="view-journal">
+    <div class="flex justify-between items-center">
+      <div><div class="page-title">Trade Journal</div><div class="page-sub">All trades with WW strategy notes</div></div>
+      <button class="btn btn-primary" onclick="openTradeModal()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Record Trade
+      </button>
+    </div>
+    <!-- Filters -->
+    <div class="flex gap-3 mt-2 mb-4" style="flex-wrap:wrap">
+      <input type="text" id="journalSearch" placeholder="🔍  Search ticker, company, notes..." style="max-width:300px" oninput="renderJournal()">
+      <select id="journalStrategy" style="width:auto" onchange="renderJournal()">
+        <option value="">All Strategies</option>
+        <option value="dows">Dow's Trend Theory</option>
+        <option value="ganns_swing">Gann's Swing Theory</option>
+        <option value="ganns_trend">Gann's Trend Theory</option>
+        <option value="ganns_counter">Gann's Counter Trend</option>
+        <option value="trendline">Trend Line Theory</option>
+        <option value="combination">Combination</option>
+      </select>
+      <select id="journalDir" style="width:auto" onchange="renderJournal()">
+        <option value="">All</option>
+        <option value="buy">Buy</option>
+        <option value="sell">Sell</option>
+      </select>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+    <div id="journalList"></div>
+  </div>
+
+  <!-- ========================================================
+       VIEW: PERFORMANCE
+       ======================================================== -->
+  <div class="view" id="view-performance">
+    <div class="page-title">Performance Dashboard</div>
+    <div class="page-sub">Win/Loss Ratio · Profit/Loss Ratio · Expectancy — Module 3 Section 3</div>
+
+    <div class="grid grid-4 mb-4" id="perfMetrics"></div>
+    <div class="grid grid-2 mb-4">
+      <div class="card">
+        <div class="section-title">Win / Loss Breakdown</div>
+        <div class="chart-wrap"><canvas id="winLossChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Monthly Realised P&amp;L</div>
+        <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="info-box">
+        <strong>Module 3 – Section 3: Performance Metrics</strong><br>
+        <strong>Win/Loss Ratio</strong> = Winning trades ÷ Losing trades. A ratio &gt; 1 means more wins than losses.<br>
+        <strong>Profit/Loss Ratio</strong> = Average win ÷ Average loss. A ratio &gt; 1 means average wins are larger than average losses.<br>
+        <strong>Expectancy</strong> = (Win Rate × Avg Win) − (Loss Rate × Avg Loss). Positive expectancy confirms a profitable system over time.<br>
+        <strong>Optuma</strong>: Use Optuma charting software (Module 3 Appendix) to back-test and confirm these metrics on historical data.
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       VIEW: WATCHLIST
+       ======================================================== -->
+  <div class="view" id="view-watchlist">
+    <div class="flex justify-between items-center">
+      <div><div class="page-title">Watchlist</div><div class="page-sub">Top-Down Analysis — Market → Sector → Stock (Module 1)</div></div>
+      <button class="btn btn-primary" onclick="openWatchModal()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Stock
+      </button>
+    </div>
+    <div class="grid grid-3 mt-2" id="watchlistGrid"></div>
+  </div>
+
+  <!-- ========================================================
+       VIEW: TRADING PLAN
+       ======================================================== -->
+  <div class="view" id="view-plan">
+    <div class="flex justify-between items-center mb-4">
+      <div><div class="page-title">My Trading Plan</div><div class="page-sub">Module 1 – Section 2: Key Elements of a Successful Trading Plan</div></div>
+      <div class="flex gap-2">
+        <button class="btn btn-outline" onclick="exportPlanText()">⬇ Export Plan</button>
+        <button class="btn btn-primary" onclick="savePlan()">💾 Save Plan</button>
+      </div>
+    </div>
+
+    <div class="grid grid-2">
+      <!-- Left column -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="form-section-title">1. Portfolio Overview <span class="badge badge-green" style="font-size:9px">Module 1</span></div>
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">Portfolio Type</label>
+              <select id="plan_portType"><option value="growth">Growth</option><option value="income">Income</option><option value="balanced">Balanced</option><option value="speculative">Speculative</option></select></div>
+            <div class="form-group"><label class="form-label">Time Frame</label>
+              <select id="plan_timeFrame"><option value="short">Short Term</option><option value="medium" selected>Medium Term</option><option value="long">Long Term</option></select></div>
+            <div class="form-group"><label class="form-label">Markets Traded</label><input id="plan_markets" value="ASX"></div>
+            <div class="form-group"><label class="form-label">Risk Level</label>
+              <select id="plan_risk"><option value="conservative">Conservative</option><option value="moderate" selected>Moderate</option><option value="aggressive">Aggressive</option></select></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="form-section-title">2. Money Management <span class="badge badge-green" style="font-size:9px">Module 1</span></div>
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">Max Risk per Trade (%)</label><input id="plan_maxRisk" type="number" step="0.1" value="2"></div>
+            <div class="form-group"><label class="form-label">Position Sizing Method</label><input id="plan_posMethod" placeholder="e.g. Fixed % of portfolio"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Money Management Rules</label>
+            <textarea id="plan_mmRules" placeholder="e.g. Never risk > 2% on any trade. Max 10 open positions. Always use stop-loss orders..."></textarea></div>
+        </div>
+
+        <div class="card">
+          <div class="form-section-title">3. Psychology &amp; Discipline Rules</div>
+          <textarea id="plan_psychology" style="min-height:120px" placeholder="e.g. Never move a stop-loss against position&#10;Never trade without a stop-loss&#10;Do not add to losing positions&#10;Cut losses quickly without hesitation"></textarea>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="form-section-title">4. Top-Down Analysis Framework <span class="badge badge-green" style="font-size:9px">Module 1</span></div>
+          <textarea id="plan_topdown" style="min-height:130px" placeholder="1. MARKET ANALYSIS (ASX 200 overall trend)&#10;   - Is ASX 200 in uptrend, downtrend or sideways?&#10;&#10;2. SECTOR ANALYSIS&#10;   - Which sectors are outperforming?&#10;&#10;3. STOCK SELECTION&#10;   - Leading stocks in leading sectors&#10;   - Apply Dow/Gann criteria for entry"></textarea>
+        </div>
+
+        <div class="card">
+          <div class="form-section-title">5. Back-Testing Results <span class="badge badge-green" style="font-size:9px">Module 3 Section 3</span></div>
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">Back-test Win Rate (%)</label><input id="plan_btWin" type="number" step="0.1" placeholder="65"></div>
+            <div class="form-group"><label class="form-label">Profit/Loss Ratio</label><input id="plan_btPL" type="number" step="0.01" placeholder="2.5"></div>
+          </div>
+          <textarea id="plan_btNotes" style="min-height:90px" placeholder="Back-test period, strategy tested, markets, key observations..."></textarea>
+        </div>
+
+        <div class="card">
+          <div class="form-section-title">6. Additional Notes</div>
+          <textarea id="plan_extra" style="min-height:80px" placeholder="Optuma settings, specific rules, broker details..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       VIEW: WW THEORY GUIDE
+       ======================================================== -->
+  <div class="view" id="view-theory">
+    <div class="page-title">WW Theory Guide</div>
+    <div class="page-sub">Quick reference for Diploma of Share Trading — Modules 1–3</div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="flex items-center gap-2 mb-2"><span class="badge badge-green">MODULE 3</span><strong>Dow's Trend Theory</strong></div>
+        <p style="color:var(--text2);font-size:13px;margin-bottom:10px">An uptrend is defined by a series of higher highs (HH) and higher lows (HL). A downtrend by lower highs (LH) and lower lows (LL).</p>
+        <div class="info-box">
+          <strong>Entry Rules:</strong> Enter a long on confirmation of a new HH after a HL has been formed, ideally with increasing volume.<br>
+          <strong>Exit Rules:</strong> Exit when price fails to make a new HH, or when it closes below the last HL (trend broken).<br>
+          <strong>Volume Confirmation:</strong> Volume should increase on up-waves and decrease on down-waves (corrections) in an uptrend.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex items-center gap-2 mb-2"><span class="badge badge-green">MODULE 3</span><strong>Gann's Swing Theory</strong></div>
+        <p style="color:var(--text2);font-size:13px;margin-bottom:10px">Identifies swing highs and swing lows to determine trend direction and place stops.</p>
+        <div class="info-box">
+          <strong>Swing High:</strong> A bar whose high is higher than the bars on either side.<br>
+          <strong>Swing Low:</strong> A bar whose low is lower than the bars on either side.<br>
+          <strong>Entry:</strong> Enter long on confirmation of a swing low forming in an uptrend.<br>
+          <strong>Stop Placement:</strong> Place stop-loss just below the last confirmed swing low.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex items-center gap-2 mb-2"><span class="badge badge-green">MODULE 3</span><strong>Gann's Trend Theory</strong></div>
+        <div class="info-box">
+          Trade in the direction of the main trend using a combination of swing highs/lows and Gann angles. The 1×1 angle (45°) represents a balanced market. Price above = bullish; below = bearish.<br>
+          <strong>Entry:</strong> Buy when price bounces from a Gann angle support level in an uptrend with volume confirmation.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex items-center gap-2 mb-2"><span class="badge badge-amber">MODULE 3</span><strong>Gann's Counter Trend Theory</strong></div>
+        <div class="info-box">
+          Higher-risk strategy trading against the main trend at key reversal zones. Requires <strong>strong volume confirmation</strong> and strict risk management.<br>
+          <strong>Entry:</strong> Look for key reversal bars (outside days, key reversals) at major support/resistance in oversold/overbought zones.<br>
+          <strong>Risk:</strong> Use tight stops. Counter-trend trades are lower probability — only take with exceptional setups.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex items-center gap-2 mb-2"><span class="badge badge-green">MODULE 3</span><strong>Trend Line Theory</strong></div>
+        <div class="info-box">
+          <strong>Uptrend line:</strong> Connect at least 2 swing lows. The more touches, the stronger the line.<br>
+          <strong>Downtrend line:</strong> Connect at least 2 swing highs.<br>
+          <strong>Entry:</strong> Buy on a bounce from an uptrend line support, ideally with a bullish bar pattern and volume spike.<br>
+          <strong>Break:</strong> A close through the trend line is a warning signal. Confirmed break = exit or reverse.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex items-center gap-2 mb-2"><span class="badge badge-blue" style="background:rgba(59,130,246,.12);color:var(--blue)">MODULE 2</span><strong>Volume &amp; Bar Analysis</strong></div>
+        <div class="info-box">
+          <strong>Volume Principles:</strong> Volume should confirm the trend. High volume on rallies, low volume on corrections = healthy uptrend.<br>
+          <strong>Volume Spike:</strong> Unusual volume (3×+ average) on a breakout confirms conviction.<br>
+          <strong>Bar Patterns:</strong> Outside day (range exceeds prior bar), key reversal (new high then close below prior close), narrow range bars (NRB — potential explosive move ahead).<br>
+          <strong>Bar Colour:</strong> Bullish = close above open (green/white). Bearish = close below open (red/black). Closing position within bar range is important.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex items-center gap-2 mb-2"><span class="badge badge-blue" style="background:rgba(59,130,246,.12);color:var(--blue)">MODULE 1</span><strong>Top-Down Analysis Framework</strong></div>
+        <div class="info-box">
+          <strong>Step 1 — Market Analysis:</strong> Is the broader market (ASX 200) in an uptrend, downtrend, or sideways? Only trade longs in an uptrending market.<br>
+          <strong>Step 2 — Sector Analysis:</strong> Identify the leading sectors using relative strength. Focus on sectors outperforming the index.<br>
+          <strong>Step 3 — Stock Selection:</strong> Within the leading sector, identify the leading stocks. Apply Dow/Gann entry criteria to the best setups.<br>
+          <strong>Note:</strong> Never fight the market trend. A great stock setup in a downtrending market has significantly lower probability.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex items-center gap-2 mb-2"><span class="badge badge-amber">MODULE 3 – SECTION 3</span><strong>Performance Metrics</strong></div>
+        <div class="info-box">
+          <strong>Win Rate</strong> = Winning trades ÷ Total closed trades × 100<br>
+          <strong>Win/Loss Ratio</strong> = Number of winning trades ÷ Number of losing trades<br>
+          <strong>Profit/Loss Ratio</strong> = Average profit per winning trade ÷ Average loss per losing trade<br>
+          <strong>Expectancy</strong> = (Win Rate × Avg Win) − (Loss Rate × Avg Loss) — must be positive for a profitable system<br>
+          <strong>Example:</strong> 55% win rate, 2:1 P/L ratio → Expectancy = (0.55 × $2) − (0.45 × $1) = $0.65 per $1 risked
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- ============================================================
+     MODAL: ADD TRADE
+     ============================================================ -->
+<div class="modal-bg" id="tradeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Record Trade</div>
+      <button class="btn-icon" onclick="closeModal('tradeModal')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section-title">Trade Details</div>
+      <div class="form-row form-row-2">
+        <div class="form-group"><label class="form-label">Ticker *</label><input id="t_ticker" placeholder="e.g. BHP" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="form-group"><label class="form-label">Company Name *</label><input id="t_company" placeholder="e.g. BHP Group Limited"></div>
+        <div class="form-group"><label class="form-label">Direction *</label>
+          <select id="t_dir"><option value="buy">Buy</option><option value="sell">Sell</option></select></div>
+        <div class="form-group"><label class="form-label">Trade Date *</label><input id="t_date" type="date"></div>
+        <div class="form-group"><label class="form-label">Quantity *</label><input id="t_qty" type="number" step="1" min="1" placeholder="1000" oninput="calcTotal()"></div>
+        <div class="form-group"><label class="form-label">Price per Share *</label><input id="t_price" type="number" step="0.001" min="0.001" placeholder="12.50" oninput="calcTotal()"></div>
+        <div class="form-group"><label class="form-label">Broker Fee</label><input id="t_fee" type="number" step="0.01" min="0" placeholder="19.95" oninput="calcTotal()"></div>
+        <div class="form-group"><label class="form-label">Total</label>
+          <div id="t_total" style="padding:9px 12px;background:var(--green-bg);border:1px solid rgba(16,185,129,.3);border-radius:8px;color:var(--green);font-weight:700">$0.00</div></div>
+      </div>
+
+      <div class="form-section-title mt-4">Wealth Within Strategy <span class="badge badge-green" style="font-size:9px">Module 3</span></div>
+      <div class="form-row form-row-2">
+        <div class="form-group"><label class="form-label">Strategy *</label>
+          <select id="t_strategy">
+            <option value="dows">Dow's Trend Theory</option>
+            <option value="ganns_swing">Gann's Swing Theory</option>
+            <option value="ganns_trend">Gann's Trend Theory</option>
+            <option value="ganns_counter">Gann's Counter Trend Theory</option>
+            <option value="trendline">Trend Line Theory</option>
+            <option value="combination">Combination</option>
+          </select></div>
+        <div class="form-group"><label class="form-label">Entry Method</label>
+          <select id="t_entry">
+            <option value="">— Select —</option>
+            <option value="swing_low">Swing Low Confirmed</option>
+            <option value="swing_high">Swing High Confirmed</option>
+            <option value="tl_bounce">Trend Line Support Bounce</option>
+            <option value="tl_break">Trend Line Resistance Break</option>
+            <option value="counter_vol">Counter-Trend Reversal (Volume Spike)</option>
+            <option value="gann_angle">Gann Angle Support</option>
+            <option value="double_bottom">Double Bottom</option>
+            <option value="double_top">Double Top</option>
+            <option value="other">Other</option>
+          </select></div>
+        <div class="form-group"><label class="form-label">Risk % per Trade <span class="form-hint">(Module 1 MM Rule)</span></label><input id="t_risk" type="number" step="0.1" min="0" max="100" placeholder="2.0"></div>
+        <div class="form-group"><label class="form-label">Stop-Loss Level</label><input id="t_sl" type="number" step="0.001" min="0" placeholder="e.g. 11.85"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Stop-Loss Reason</label><input id="t_slreason" placeholder="e.g. Below swing low of 12 Nov at $11.85"></div>
+      <div class="form-group"><label class="form-label">Volume Analysis Notes <span class="form-hint">(Module 2)</span></label>
+        <textarea id="t_vol" placeholder="e.g. Volume spiked 3× on breakout — confirms buyer conviction..."></textarea></div>
+      <div class="form-group"><label class="form-label">Bar Analysis Notes <span class="form-hint">(Module 2)</span></label>
+        <textarea id="t_bar" placeholder="e.g. Strong bullish outside day, close in upper 25% of bar range..."></textarea></div>
+      <div class="form-group"><label class="form-label">Trade Journal / Comments</label>
+        <textarea id="t_comments" placeholder="e.g. BHP confirmed uptrend per Dow Theory. Entered on swing low confirmation at 3× volume. Stop $43.20 (last swing low). Target $52.00 (R:R = 1:3.5)..." style="min-height:80px"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('tradeModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTrade()">Record Trade</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL: ADD WATCHLIST
+     ============================================================ -->
+<div class="modal-bg" id="watchModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add to Watchlist</div>
+      <button class="btn-icon" onclick="closeModal('watchModal')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row form-row-2">
+        <div class="form-group"><label class="form-label">Ticker *</label><input id="w_ticker" placeholder="BHP" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="form-group"><label class="form-label">Company Name *</label><input id="w_company" placeholder="BHP Group Limited"></div>
+        <div class="form-group"><label class="form-label">Sector</label><input id="w_sector" placeholder="e.g. Materials"></div>
+        <div class="form-group"><label class="form-label">Priority</label>
+          <select id="w_priority"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+      </div>
+      <div class="form-section-title mt-2">Fundamental Analysis</div>
+      <div class="form-row form-row-3">
+        <div class="form-group"><label class="form-label">P/E Ratio</label><input id="w_pe" type="number" step="0.1" placeholder="18.5"></div>
+        <div class="form-group"><label class="form-label">Div Yield %</label><input id="w_div" type="number" step="0.01" placeholder="3.5"></div>
+        <div class="form-group"><label class="form-label">Market Cap</label><input id="w_cap" placeholder="e.g. $50B"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Fundamental Notes</label><textarea id="w_fundNotes" placeholder="Strong earnings growth, low debt..."></textarea></div>
+      <div class="form-section-title">Technical Analysis</div>
+      <div class="form-row form-row-3">
+        <div class="form-group"><label class="form-label">Trend Direction</label>
+          <select id="w_trend"><option value="">—</option><option value="uptrend">Uptrend</option><option value="downtrend">Downtrend</option><option value="sideways">Sideways</option></select></div>
+        <div class="form-group"><label class="form-label">Support Level</label><input id="w_support" type="number" step="0.01" placeholder="42.50"></div>
+        <div class="form-group"><label class="form-label">Resistance Level</label><input id="w_resist" type="number" step="0.01" placeholder="48.00"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Strategy Alignment</label>
+        <select id="w_strategy">
+          <option value="">— Select —</option>
+          <option value="dows">Dow's Trend Theory</option>
+          <option value="ganns_swing">Gann's Swing Theory</option>
+          <option value="ganns_trend">Gann's Trend Theory</option>
+          <option value="ganns_counter">Gann's Counter Trend Theory</option>
+          <option value="trendline">Trend Line Theory</option>
+          <option value="combination">Combination</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Technical Notes</label><textarea id="w_techNotes" placeholder="In confirmed uptrend, volume rising, approaching trend line support..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('watchModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveWatch()">Add to Watchlist</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA STORE (localStorage)
+// ============================================================
+const DB = {
+  get trades() { return JSON.parse(localStorage.getItem('ww_trades') || '[]') },
+  set trades(v) { localStorage.setItem('ww_trades', JSON.stringify(v)) },
+  get watchlist() { return JSON.parse(localStorage.getItem('ww_watchlist') || '[]') },
+  set watchlist(v) { localStorage.setItem('ww_watchlist', JSON.stringify(v)) },
+  get plan() { return JSON.parse(localStorage.getItem('ww_plan') || '{}') },
+  set plan(v) { localStorage.setItem('ww_plan', JSON.stringify(v)) },
+}
+
+// ============================================================
+// SEED DATA (only if empty)
+// ============================================================
+function seedData() {
+  if (DB.trades.length > 0) return
+  const seed = [
+    { id: uid(), ticker: 'BHP', company: 'BHP Group Limited', dir: 'buy', date: '2025-08-15', qty: 500, price: 43.20, fee: 19.95, strategy: 'dows', entry: 'swing_low', risk: 2, sl: 41.50, comments: "Confirmed uptrend per Dow Theory. Swing low formed on high volume. Entry at open after confirmation. Stop at last swing low $41.50.", volume: "Volume 2.8× average on entry day — strong buyer conviction.", bar: "Bullish engulfing candle, close in top 20% of bar range." },
+    { id: uid(), ticker: 'CBA', company: 'Commonwealth Bank', dir: 'buy', date: '2025-09-03', qty: 100, price: 148.50, fee: 19.95, strategy: 'ganns_swing', entry: 'tl_bounce', risk: 1.5, sl: 143.00, comments: "Bounce from uptrend line, Gann swing confirmed. Good R:R.", volume: "Volume dry-up on pullback then spike on bounce = classic.", bar: "Narrow range bar followed by strong bullish outside day." },
+    { id: uid(), ticker: 'BHP', company: 'BHP Group Limited', dir: 'sell', date: '2025-10-22', qty: 500, price: 48.60, fee: 19.95, strategy: 'dows', entry: '', risk: 0, sl: 0, comments: "Target hit. Trend line broken on high volume. Profit taken per exit rules. P&L = $2,700." },
+    { id: uid(), ticker: 'RIO', company: 'Rio Tinto Limited', dir: 'buy', date: '2025-10-28', qty: 150, price: 118.00, fee: 19.95, strategy: 'trendline', entry: 'tl_bounce', risk: 2, sl: 113.50, comments: "Strong uptrend line bounce with volume confirmation. Materials sector leader.", volume: "Volume 1.9× average. Not as strong as preferred but trend intact.", bar: "Outside day — bullish engulfing at trend line." },
+    { id: uid(), ticker: 'WBC', company: 'Westpac Banking', dir: 'buy', date: '2025-11-10', qty: 200, price: 32.80, fee: 19.95, strategy: 'ganns_swing', entry: 'swing_low', risk: 1.8, sl: 31.20, comments: "Banks sector continuing uptrend. Swing low confirmed, good R:R at 1:2.5.", volume: "Average volume on pullback, good sign.", bar: "" },
+  ]
+  DB.trades = seed
+
+  DB.watchlist = [
+    { id: uid(), ticker: 'ANZ', company: 'ANZ Banking Group', sector: 'Financials', priority: 'high', trend: 'uptrend', support: 28.50, resist: 32.00, strategy: 'dows', techNotes: 'Approaching trend line support. Watch for swing low formation.', fundNotes: 'Strong dividend yield 5.2%, stable earnings.', pe: 14.2, div: 5.2, cap: '$70B' },
+    { id: uid(), ticker: 'CSL', company: 'CSL Limited', sector: 'Healthcare', priority: 'medium', trend: 'sideways', support: 280.00, resist: 310.00, strategy: 'ganns_swing', techNotes: 'Consolidating. Waiting for breakout above $310 resistance with volume.', fundNotes: '', pe: 42, div: 1.1, cap: '$145B' },
+    { id: uid(), ticker: 'FMG', company: 'Fortescue Metals', sector: 'Materials', priority: 'low', trend: 'downtrend', support: 17.50, resist: 22.00, strategy: 'ganns_counter', techNotes: 'Downtrend in place. Watching for counter-trend reversal at $17.50 support.', fundNotes: '', pe: 8, div: 8.5, cap: '$55B' },
+  ]
+}
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2) }
+function fmt(n, d=2) { return new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(n) }
+function fmtN(n,d=2) { return Number(n).toFixed(d) }
+function fmtDate(s) { if(!s) return '—'; try { return new Intl.DateTimeFormat('en-AU',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(s+'T00:00:00')) } catch{return s} }
+function pct(n) { return (n>=0?'+':'')+n.toFixed(2)+'%' }
+function stratLabel(s) {
+  const m={dows:"Dow's Trend",ganns_swing:"Gann's Swing",ganns_trend:"Gann's Trend",ganns_counter:"Gann's Counter Trend",trendline:"Trend Line",combination:"Combination"}
+  return m[s]||s||'—'
+}
+function entryLabel(s) {
+  const m={swing_low:'Swing Low Confirmed',swing_high:'Swing High Confirmed',tl_bounce:'TL Support Bounce',tl_break:'TL Resistance Break',counter_vol:'Counter-Trend Vol Spike',gann_angle:'Gann Angle Support',double_bottom:'Double Bottom',double_top:'Double Top',other:'Other'}
+  return m[s]||''
+}
+
+function toast(msg, isError=false) {
+  const t = document.getElementById('toast')
+  t.textContent = msg
+  t.className = 'toast show' + (isError ? ' error' : '')
+  setTimeout(() => t.className = 'toast', 2800)
+}
+
+// ============================================================
+// HOLDINGS COMPUTATION
+// ============================================================
+function computeHoldings() {
+  const trades = DB.trades
+  const map = {}
+  // Process buys
+  trades.filter(t=>t.dir==='buy').sort((a,b)=>a.date.localeCompare(b.date)).forEach(t => {
+    if (!map[t.ticker]) map[t.ticker] = { ticker:t.ticker, company:t.company, qty:0, avgCost:0, totalCost:0, firstDate:t.date }
+    const h = map[t.ticker]
+    const newQty = h.qty + t.qty
+    h.avgCost = (h.qty * h.avgCost + t.qty * t.price) / newQty
+    h.qty = newQty
+    h.totalCost += t.qty * t.price + (t.fee||0)
+  })
+  // Process sells
+  trades.filter(t=>t.dir==='sell').sort((a,b)=>a.date.localeCompare(b.date)).forEach(t => {
+    if (map[t.ticker]) {
+      map[t.ticker].qty = Math.max(0, map[t.ticker].qty - t.qty)
+      if (map[t.ticker].qty === 0) {
+        map[t.ticker].totalCost = 0
+      } else {
+        map[t.ticker].totalCost = map[t.ticker].avgCost * map[t.ticker].qty
+      }
+    }
+  })
+  return Object.values(map).filter(h => h.qty > 0)
+}
+
+// ============================================================
+// PERFORMANCE STATS (Module 3 Section 3)
+// ============================================================
+function computeStats() {
+  const trades = DB.trades
+  // Simple realised P&L: match buys to sells per ticker (FIFO)
+  const buyQueues = {}
+  const realisedPnls = []
+
+  trades.filter(t=>t.dir==='buy').sort((a,b)=>a.date.localeCompare(b.date)).forEach(t => {
+    if (!buyQueues[t.ticker]) buyQueues[t.ticker] = []
+    buyQueues[t.ticker].push({ qty: t.qty, price: t.price, fee: t.fee||0 })
+  })
+
+  trades.filter(t=>t.dir==='sell').sort((a,b)=>a.date.localeCompare(b.date)).forEach(sell => {
+    const queue = buyQueues[sell.ticker]
+    if (!queue||!queue.length) return
+    let remaining = sell.qty
+    const revenue = sell.qty * sell.price - (sell.fee||0)
+    let cost = 0
+    while (remaining > 0 && queue.length > 0) {
+      const buy = queue[0]
+      const matched = Math.min(remaining, buy.qty)
+      cost += matched * buy.price + (matched/buy.qty) * buy.fee
+      buy.qty -= matched
+      remaining -= matched
+      if (buy.qty <= 0) queue.shift()
+    }
+    realisedPnls.push({ pnl: revenue - cost, date: sell.date })
+  })
+
+  // Australian FY start: 1 July
+  const now = new Date()
+  const fyYear = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1
+  const fyStart = new Date(fyYear, 6, 1)
+
+  const wins = realisedPnls.filter(p=>p.pnl>0)
+  const losses = realisedPnls.filter(p=>p.pnl<0)
+  const totalWin = wins.reduce((s,p)=>s+p.pnl,0)
+  const totalLoss = losses.reduce((s,p)=>s+Math.abs(p.pnl),0)
+  const avgWin = wins.length > 0 ? totalWin/wins.length : 0
+  const avgLoss = losses.length > 0 ? totalLoss/losses.length : 0
+  const winRate = realisedPnls.length > 0 ? wins.length/realisedPnls.length : 0
+  const lossRate = 1 - winRate
+  const plRatio = avgLoss > 0 ? avgWin/avgLoss : 0
+  const expectancy = avgWin*winRate - avgLoss*lossRate
+  const ytdPnl = realisedPnls.filter(p=>new Date(p.date+'T00:00:00')>=fyStart).reduce((s,p)=>s+p.pnl,0)
+
+  return {
+    total: realisedPnls.length,
+    wins: wins.length,
+    losses: losses.length,
+    winRate: winRate*100,
+    lossRate: lossRate*100,
+    winLossRatio: losses.length > 0 ? wins.length/losses.length : wins.length,
+    totalWin, totalLoss, avgWin, avgLoss,
+    plRatio, expectancy,
+    totalPnl: realisedPnls.reduce((s,p)=>s+p.pnl,0),
+    ytdPnl,
+    largestWin: wins.length>0 ? Math.max(...wins.map(p=>p.pnl)) : 0,
+    largestLoss: losses.length>0 ? Math.max(...losses.map(p=>Math.abs(p.pnl))) : 0,
+    monthlyPnl: (() => {
+      const m = {}
+      realisedPnls.forEach(p => {
+        const key = p.date.slice(0,7)
+        m[key] = (m[key]||0) + p.pnl
+      })
+      return m
+    })(),
+  }
+}
+
+// ============================================================
+// RENDER SUMMARY CARDS
+// ============================================================
+function renderSummaryCards() {
+  const holdings = computeHoldings()
+  const stats = computeStats()
+  const unrealisedPnl = holdings.reduce((s,h)=>{
+    const cur = h.avgCost // no live prices in offline mode
+    return s + 0 // would be (curPrice - avgCost) * qty
+  }, 0)
+  const totalValue = holdings.reduce((s,h)=>s+h.totalCost, 0)
+
+  const fyYear = new Date().getMonth()>=6 ? new Date().getFullYear() : new Date().getFullYear()-1
+  const fyLabel = `FY${String(fyYear).slice(2)}/${String(fyYear+1).slice(2)}`
+  document.getElementById('fyLabel').textContent = `${fyLabel} · Wealth Within Institute – Diploma of Share Trading`
+
+  const cardData = [
+    { label:'Total Portfolio Value', value: fmt(totalValue), sub: `${holdings.length} positions`, icon:'💼', color:'blue' },
+    { label:'Realised P&L (All Time)', value: fmt(stats.totalPnl), sub: `${fyLabel}: ${fmt(stats.ytdPnl)}`, positive: stats.totalPnl>=0, icon:'📈', color: stats.totalPnl>=0?'green':'red' },
+    { label:'Win / Loss Ratio', value: stats.total>0 ? fmtN(stats.winLossRatio) : '—', sub: `${stats.wins}W / ${stats.losses}L of ${stats.total} trades`, positive: stats.winLossRatio>=1, icon:'🎯', color: stats.winLossRatio>=1?'green':'red' },
+    { label:'Profit / Loss Ratio', value: stats.total>0 ? fmtN(stats.plRatio) : '—', sub: `Expectancy: ${stats.total>0?fmt(stats.expectancy):'—'}`, positive: stats.plRatio>=1, icon:'⚡', color: stats.plRatio>=1?'green':'red' },
+  ]
+
+  const html = cardData.map(c=>`
+    <div class="card metric">
+      <div class="metric-icon ${c.color}"><span style="font-size:18px">${c.icon}</span></div>
+      <div class="metric-label">${c.label}</div>
+      <div class="metric-value ${c.positive===true?'pos':c.positive===false?'neg':''}">${c.value}</div>
+      <div class="metric-sub">${c.sub}</div>
+    </div>`).join('')
+
+  document.getElementById('summaryCards').innerHTML = html
+  if(document.getElementById('portfolioSummaryCards'))
+    document.getElementById('portfolioSummaryCards').innerHTML = html
+}
+
+// ============================================================
+// RENDER HOLDINGS
+// ============================================================
+function renderHoldings() {
+  const holdings = computeHoldings()
+  const tbody = document.getElementById('holdingsBody')
+  if (!tbody) return
+  if (!holdings.length) {
+    tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">No open positions</div><div>Add a buy trade to see your holdings</div></div></td></tr>'
+    return
+  }
+  tbody.innerHTML = holdings.map(h => `
+    <tr>
+      <td><strong>${h.ticker}</strong></td>
+      <td style="color:var(--text2)">${h.company}</td>
+      <td>${h.qty.toLocaleString()}</td>
+      <td>${fmt(h.avgCost)}</td>
+      <td>${fmt(h.totalCost)}</td>
+      <td style="color:var(--text2)">—</td>
+      <td>${fmt(h.totalCost)}</td>
+      <td style="color:var(--text2)">—</td>
+      <td style="color:var(--text2)">—</td>
+      <td style="color:var(--text2)">${fmtDate(h.firstDate)}</td>
+      <td></td>
+    </tr>`).join('')
+}
+
+// ============================================================
+// RENDER RECENT TRADES
+// ============================================================
+function renderRecentTrades() {
+  const tbody = document.getElementById('recentTradesBody')
+  if (!tbody) return
+  const trades = DB.trades.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8)
+  if (!trades.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No trades yet</div></div></td></tr>'
+    return
+  }
+  tbody.innerHTML = trades.map(t => `
+    <tr>
+      <td style="color:var(--text2)">${fmtDate(t.date)}</td>
+      <td><strong>${t.ticker}</strong></td>
+      <td><span class="badge ${t.dir==='buy'?'badge-green':'badge-red'}">${t.dir.toUpperCase()}</span></td>
+      <td>${t.qty.toLocaleString()}</td>
+      <td>${fmt(t.price)}</td>
+      <td><strong>${fmt(t.qty*t.price+(t.dir==='buy'?1:-1)*(t.fee||0))}</strong></td>
+      <td><span class="strategy-pill">${stratLabel(t.strategy)}</span></td>
+    </tr>`).join('')
+}
+
+// ============================================================
+// RENDER JOURNAL
+// ============================================================
+function renderJournal() {
+  const search = (document.getElementById('journalSearch')?.value||'').toLowerCase()
+  const strat  = document.getElementById('journalStrategy')?.value||''
+  const dir    = document.getElementById('journalDir')?.value||''
+  let trades = DB.trades.slice().sort((a,b)=>b.date.localeCompare(a.date))
+  if (search) trades = trades.filter(t =>
+    t.ticker.toLowerCase().includes(search) ||
+    t.company.toLowerCase().includes(search) ||
+    (t.comments||'').toLowerCase().includes(search) ||
+    (t.volume||'').toLowerCase().includes(search) ||
+    (t.bar||'').toLowerCase().includes(search)
+  )
+  if (strat) trades = trades.filter(t=>t.strategy===strat)
+  if (dir) trades = trades.filter(t=>t.dir===dir)
+
+  const el = document.getElementById('journalList')
+  if (!trades.length) {
+    el.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">No trades found</div><div>Try adjusting your search or filters</div></div></div>'
+    return
+  }
+  el.innerHTML = trades.map(t => `
+    <div class="card mb-4" style="margin-bottom:12px">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-3" style="flex-wrap:wrap">
+          <span style="font-size:20px;font-weight:700">${t.ticker}</span>
+          <span class="badge ${t.dir==='buy'?'badge-green':'badge-red'}">${t.dir.toUpperCase()}</span>
+          <span style="color:var(--text2);font-size:12px">${fmtDate(t.date)}</span>
+          <span class="strategy-pill">${stratLabel(t.strategy)}</span>
+          ${t.entry?`<span style="font-size:11px;color:var(--text3)">${entryLabel(t.entry)}</span>`:''}
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deleteTrade('${t.id}')">Delete</button>
+      </div>
+      <div style="color:var(--text2);font-size:13px;margin-top:4px">${t.company}</div>
+      <div class="flex gap-4 mt-2" style="font-size:12px;color:var(--text2);flex-wrap:wrap">
+        <span>${t.qty.toLocaleString()} shares @ ${fmt(t.price)}</span>
+        <span>Fee: ${fmt(t.fee||0)}</span>
+        <span><strong style="color:var(--text)">Total: ${fmt(t.qty*t.price+(t.dir==='buy'?1:-1)*(t.fee||0))}</strong></span>
+        ${t.risk?`<span>Risk: ${t.risk}%</span>`:''}
+        ${t.sl?`<span>SL: ${fmt(t.sl)}</span>`:''}
+      </div>
+      ${(t.comments||t.volume||t.bar||t.slreason)?`
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px">
+        ${t.comments?`<div><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Journal: </span><span style="font-size:12px">${t.comments}</span></div>`:''}
+        ${t.volume?`<div><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Volume (M2): </span><span style="font-size:12px;color:var(--text2)">${t.volume}</span></div>`:''}
+        ${t.bar?`<div><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Bar Analysis (M2): </span><span style="font-size:12px;color:var(--text2)">${t.bar}</span></div>`:''}
+        ${t.slreason?`<div><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">SL Reason: </span><span style="font-size:12px;color:var(--text2)">${t.slreason}</span></div>`:''}
+      </div>`:''}
+    </div>`).join('')
+}
+
+// ============================================================
+// RENDER PERFORMANCE
+// ============================================================
+let chartInstances = {}
+function renderPerformance() {
+  const s = computeStats()
+  const el = document.getElementById('perfMetrics')
+  if (!el) return
+  el.innerHTML = [
+    { label:'Win Rate', value: s.total>0?fmtN(s.winRate)+'%':'—', sub:`${s.wins} wins / ${s.total} trades`, color: s.winRate>=50?'green':'red' },
+    { label:'Win/Loss Ratio', value: s.total>0?fmtN(s.winLossRatio):'—', sub:`${s.wins}W / ${s.losses}L`, color: s.winLossRatio>=1?'green':'red', tip:'Module 3: Wins ÷ Losses' },
+    { label:'Profit/Loss Ratio', value: s.total>0?fmtN(s.plRatio):'—', sub:`Avg Win ${fmt(s.avgWin)} / Avg Loss ${fmt(s.avgLoss)}`, color: s.plRatio>=1?'green':'red', tip:'Module 3: Avg Win ÷ Avg Loss' },
+    { label:'Expectancy / Trade', value: s.total>0?fmt(s.expectancy):'—', sub:'Expected profit per trade', color: s.expectancy>=0?'green':'red', tip:'(Win% × Avg Win) − (Loss% × Avg Loss)' },
+  ].map(c=>`<div class="card metric">
+    <div class="metric-label">${c.label}${c.tip?` <span title="${c.tip}" style="cursor:help;font-size:10px">ℹ️</span>`:''}</div>
+    <div class="metric-value ${c.color==='green'?'pos':'neg'}">${c.value}</div>
+    <div class="metric-sub">${c.sub}</div>
+  </div>`).join('')
+
+  // Win/Loss Pie
+  const wlCtx = document.getElementById('winLossChart')?.getContext('2d')
+  if (wlCtx) {
+    if (chartInstances.winLoss) chartInstances.winLoss.destroy()
+    chartInstances.winLoss = new Chart(wlCtx, {
+      type: 'doughnut',
+      data: {
+        labels: [`Wins (${s.wins})`, `Losses (${s.losses})`],
+        datasets: [{ data: [s.wins||0.001, s.losses||0.001], backgroundColor: ['#10b981','#ef4444'], borderWidth: 0 }]
+      },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom',labels:{color:getColor(),font:{size:12}}} } }
+    })
+  }
+
+  // Monthly P&L
+  const mCtx = document.getElementById('monthlyChart')?.getContext('2d')
+  if (mCtx) {
+    if (chartInstances.monthly) chartInstances.monthly.destroy()
+    const months = Object.entries(s.monthlyPnl).sort(([a],[b])=>a.localeCompare(b))
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light'
+    chartInstances.monthly = new Chart(mCtx, {
+      type: 'bar',
+      data: {
+        labels: months.map(([k])=>k),
+        datasets: [{ label:'Realised P&L', data: months.map(([,v])=>v), backgroundColor: months.map(([,v])=>v>=0?'rgba(16,185,129,.8)':'rgba(239,68,68,.8)'), borderRadius: 5 }]
+      },
+      options: { responsive:true, maintainAspectRatio:false, scales:{
+        x:{ticks:{color:getColor(),font:{size:11}}},
+        y:{ticks:{color:getColor(),font:{size:11},callback:v=>`$${(v/1000).toFixed(0)}k`}}
+      }, plugins:{legend:{display:false}} }
+    })
+  }
+}
+
+// ============================================================
+// RENDER DASHBOARD CHARTS
+// ============================================================
+function renderDashboardCharts() {
+  // Strategy chart
+  const sCtx = document.getElementById('strategyChart')?.getContext('2d')
+  if (sCtx) {
+    if (chartInstances.strategy) chartInstances.strategy.destroy()
+    const trades = DB.trades
+    const stratCount = {}
+    trades.forEach(t => stratCount[stratLabel(t.strategy)] = (stratCount[stratLabel(t.strategy)]||0)+1)
+    const entries = Object.entries(stratCount)
+    chartInstances.strategy = new Chart(sCtx, {
+      type: 'bar',
+      data: {
+        labels: entries.map(([k])=>k),
+        datasets: [{ data: entries.map(([,v])=>v), backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ec4899','#8b5cf6','#06b6d4'], borderRadius:5, label:'Trades' }]
+      },
+      options: { responsive:true, maintainAspectRatio:false, scales:{
+        x:{ticks:{color:getColor(),font:{size:10}}},
+        y:{ticks:{color:getColor(),font:{size:11}}}
+      }, plugins:{legend:{display:false}} }
+    })
+  }
+
+  // P&L trend (cumulative)
+  const pCtx = document.getElementById('pnlChart')?.getContext('2d')
+  if (pCtx) {
+    if (chartInstances.pnl) chartInstances.pnl.destroy()
+    const s = computeStats()
+    const months = Object.entries(s.monthlyPnl).sort(([a],[b])=>a.localeCompare(b))
+    let cum = 0
+    const cumData = months.map(([k,v])=>{ cum+=v; return { x:k, y:cum } })
+    chartInstances.pnl = new Chart(pCtx, {
+      type: 'line',
+      data: {
+        labels: cumData.map(d=>d.x),
+        datasets: [{ label:'Cumulative P&L', data: cumData.map(d=>d.y), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.1)', fill:true, tension:.3, pointRadius:3, pointBackgroundColor:'#10b981' }]
+      },
+      options: { responsive:true, maintainAspectRatio:false, scales:{
+        x:{ticks:{color:getColor(),font:{size:10}}},
+        y:{ticks:{color:getColor(),font:{size:11},callback:v=>`$${(v/1000).toFixed(0)}k`}}
+      }, plugins:{legend:{display:false}} }
+    })
+  }
+}
+
+function getColor() {
+  return document.documentElement.getAttribute('data-theme')==='light' ? '#64748b' : '#94a3b8'
+}
+
+// ============================================================
+// RENDER WATCHLIST
+// ============================================================
+function renderWatchlist() {
+  const el = document.getElementById('watchlistGrid')
+  if (!el) return
+  const items = DB.watchlist
+  if (!items.length) {
+    el.innerHTML = `<div class="card" style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">👀</div><div class="empty-title">Watchlist is empty</div><div>Add stocks you're analysing using top-down analysis</div></div></div>`
+    return
+  }
+  const priorityColor = { high:'badge-red', medium:'badge-amber', low:'badge-gray' }
+  const trendIcon = { uptrend:'↑', downtrend:'↓', sideways:'→' }
+  const trendColor = { uptrend:'var(--green)', downtrend:'var(--red)', sideways:'var(--amber)' }
+  el.innerHTML = items.map(w => `
+    <div class="watch-card">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <div class="watch-ticker">${w.ticker}</div>
+          ${w.trend?`<span style="color:${trendColor[w.trend]};font-size:18px;font-weight:700">${trendIcon[w.trend]}</span>`:''}
+        </div>
+        <div class="flex gap-1">
+          <span class="badge ${priorityColor[w.priority]}">${w.priority}</span>
+          <button class="btn-icon btn-sm" onclick="deleteWatch('${w.id}')">✕</button>
+        </div>
+      </div>
+      <div class="watch-name">${w.company}</div>
+      ${w.sector?`<div class="text-xs mt-2" style="color:var(--text3)">${w.sector}</div>`:''}
+      ${w.strategy?`<div class="strategy-pill" style="display:inline-block;margin-top:8px">${stratLabel(w.strategy)}</div>`:''}
+      ${(w.support||w.resist)?`
+      <div class="flex gap-2 mt-2">
+        ${w.support?`<div style="background:var(--green-bg);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--green)">S: $${w.support}</div>`:''}
+        ${w.resist?`<div style="background:var(--red-bg);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--red)">R: $${w.resist}</div>`:''}
+      </div>`:''}
+      ${w.techNotes?`<div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.5">${w.techNotes}</div>`:''}
+    </div>`).join('')
+}
+
+// ============================================================
+// LOAD TRADING PLAN
+// ============================================================
+function loadPlan() {
+  const p = DB.plan
+  if (!p||!Object.keys(p).length) return
+  const ids = ['portType','timeFrame','markets','risk','maxRisk','posMethod','mmRules','psychology','topdown','btWin','btPL','btNotes','extra']
+  ids.forEach(id => { const el = document.getElementById('plan_'+id); if(el&&p[id]!==undefined) el.value=p[id] })
+}
+
+function savePlan() {
+  const ids = ['portType','timeFrame','markets','risk','maxRisk','posMethod','mmRules','psychology','topdown','btWin','btPL','btNotes','extra']
+  const p = {}
+  ids.forEach(id => { const el = document.getElementById('plan_'+id); if(el) p[id]=el.value })
+  DB.plan = p
+  toast('Trading plan saved ✓')
+}
+
+function exportPlanText() {
+  const p = DB.plan
+  const text = `WEALTH WITHIN TRADER — PERSONAL TRADING PLAN
+Generated: ${new Date().toLocaleDateString('en-AU')}
+
+1. PORTFOLIO OVERVIEW
+Portfolio Type: ${p.portType||'—'}
+Time Frame: ${p.timeFrame||'—'}
+Markets Traded: ${p.markets||'—'}
+Risk Level: ${p.risk||'—'}
+
+2. MONEY MANAGEMENT RULES
+Max Risk per Trade: ${p.maxRisk||2}%
+Position Sizing: ${p.posMethod||'—'}
+Rules:
+${p.mmRules||'—'}
+
+3. PSYCHOLOGY & DISCIPLINE RULES
+${p.psychology||'—'}
+
+4. TOP-DOWN ANALYSIS FRAMEWORK
+${p.topdown||'—'}
+
+5. BACK-TESTING RESULTS
+Win Rate: ${p.btWin||'—'}%
+Profit/Loss Ratio: ${p.btPL||'—'}
+Notes:
+${p.btNotes||'—'}
+
+6. ADDITIONAL NOTES
+${p.extra||'—'}
+`
+  const blob = new Blob([text], {type:'text/plain'})
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = 'WW_Trading_Plan.txt'
+  a.click()
+}
+
+// ============================================================
+// TRADE MODAL
+// ============================================================
+function openTradeModal() {
+  document.getElementById('t_date').value = new Date().toISOString().split('T')[0]
+  document.getElementById('tradeModal').classList.add('open')
+}
+
+function saveTrade() {
+  const ticker = document.getElementById('t_ticker').value.trim().toUpperCase()
+  const company = document.getElementById('t_company').value.trim()
+  const dir = document.getElementById('t_dir').value
+  const date = document.getElementById('t_date').value
+  const qty = parseFloat(document.getElementById('t_qty').value)
+  const price = parseFloat(document.getElementById('t_price').value)
+  if (!ticker || !company || !date || !qty || !price) {
+    toast('Please fill in all required fields', true); return
+  }
+  const fee = parseFloat(document.getElementById('t_fee').value) || 0
+  const trade = {
+    id: uid(), ticker, company, dir, date, qty, price, fee,
+    strategy: document.getElementById('t_strategy').value,
+    entry: document.getElementById('t_entry').value,
+    risk: parseFloat(document.getElementById('t_risk').value) || 0,
+    sl: parseFloat(document.getElementById('t_sl').value) || 0,
+    slreason: document.getElementById('t_slreason').value,
+    volume: document.getElementById('t_vol').value,
+    bar: document.getElementById('t_bar').value,
+    comments: document.getElementById('t_comments').value,
+  }
+  DB.trades = [...DB.trades, trade]
+  closeModal('tradeModal')
+  // clear fields
+  ['t_ticker','t_company','t_qty','t_price','t_fee','t_risk','t_sl','t_slreason','t_vol','t_bar','t_comments'].forEach(id=>document.getElementById(id).value='')
+  document.getElementById('t_total').textContent = '$0.00'
+  renderAll()
+  toast('Trade recorded ✓')
+}
+
+function deleteTrade(id) {
+  if (!confirm('Delete this trade?')) return
+  DB.trades = DB.trades.filter(t=>t.id!==id)
+  renderAll()
+  toast('Trade deleted')
+}
+
+function calcTotal() {
+  const qty = parseFloat(document.getElementById('t_qty')?.value)||0
+  const price = parseFloat(document.getElementById('t_price')?.value)||0
+  const fee = parseFloat(document.getElementById('t_fee')?.value)||0
+  const dir = document.getElementById('t_dir')?.value
+  const gross = qty * price
+  const total = dir==='buy' ? gross + fee : gross - fee
+  document.getElementById('t_total').textContent = fmt(total)
+}
+
+// ============================================================
+// WATCHLIST MODAL
+// ============================================================
+function openWatchModal() {
+  document.getElementById('watchModal').classList.add('open')
+}
+
+function saveWatch() {
+  const ticker = document.getElementById('w_ticker').value.trim().toUpperCase()
+  const company = document.getElementById('w_company').value.trim()
+  if (!ticker||!company) { toast('Ticker and company name required', true); return }
+  const item = {
+    id: uid(), ticker, company,
+    sector: document.getElementById('w_sector').value,
+    priority: document.getElementById('w_priority').value,
+    pe: parseFloat(document.getElementById('w_pe').value)||null,
+    div: parseFloat(document.getElementById('w_div').value)||null,
+    cap: document.getElementById('w_cap').value,
+    fundNotes: document.getElementById('w_fundNotes').value,
+    trend: document.getElementById('w_trend').value,
+    support: parseFloat(document.getElementById('w_support').value)||null,
+    resist: parseFloat(document.getElementById('w_resist').value)||null,
+    strategy: document.getElementById('w_strategy').value,
+    techNotes: document.getElementById('w_techNotes').value,
+  }
+  DB.watchlist = [...DB.watchlist, item]
+  closeModal('watchModal')
+  ;['w_ticker','w_company','w_sector','w_pe','w_div','w_cap','w_fundNotes','w_support','w_resist','w_techNotes'].forEach(id=>document.getElementById(id).value='')
+  renderWatchlist()
+  toast('Added to watchlist ✓')
+}
+
+function deleteWatch(id) {
+  DB.watchlist = DB.watchlist.filter(w=>w.id!==id)
+  renderWatchlist()
+  toast('Removed from watchlist')
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open')
+}
+
+// ============================================================
+// EXPORT CSV
+// ============================================================
+function exportCSV() {
+  const trades = DB.trades.slice().sort((a,b)=>b.date.localeCompare(a.date))
+  const rows = [
+    ['Date','Ticker','Company','Direction','Qty','Price','Fee','Total','Strategy','Entry Method','Risk %','Stop Loss','Comments','Volume Notes','Bar Notes'],
+    ...trades.map(t=>[t.date,t.ticker,t.company,t.dir,t.qty,t.price,t.fee||0,(t.qty*t.price+(t.dir==='buy'?1:-1)*(t.fee||0)).toFixed(2),stratLabel(t.strategy),entryLabel(t.entry),t.risk||'',t.sl||'',t.comments||'',t.volume||'',t.bar||''])
+  ]
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+  const blob = new Blob([csv],{type:'text/csv'})
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='trades.csv'; a.click()
+  toast('CSV exported ✓')
+}
+
+// ============================================================
+// VIEW SWITCHING
+// ============================================================
+function showView(name, navEl) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'))
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'))
+  document.getElementById('view-'+name)?.classList.add('active')
+  if (navEl) navEl.classList.add('active')
+  if (window.innerWidth <= 768) toggleSidebar(false)
+  // Render view-specific content
+  if (name==='performance') renderPerformance()
+  if (name==='journal') renderJournal()
+  if (name==='watchlist') renderWatchlist()
+  if (name==='plan') loadPlan()
+  if (name==='dashboard') { renderRecentTrades(); renderDashboardCharts() }
+  if (name==='portfolio') renderHoldings()
+}
+
+function renderAll() {
+  renderSummaryCards()
+  renderRecentTrades()
+  renderHoldings()
+  renderDashboardCharts()
+  renderJournal()
+  renderPerformance()
+  renderWatchlist()
+}
+
+// ============================================================
+// THEME
+// ============================================================
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light'
+  document.documentElement.setAttribute('data-theme', isDark?'light':'dark')
+  localStorage.setItem('ww_theme', isDark?'light':'dark')
+  document.getElementById('themeLabel').textContent = isDark ? 'Dark Mode' : 'Light Mode'
+  // Redraw charts
+  Object.values(chartInstances).forEach(c=>{ try{c.destroy()}catch{} })
+  chartInstances = {}
+  renderDashboardCharts()
+  if (document.getElementById('view-performance').classList.contains('active')) renderPerformance()
+}
+
+// ============================================================
+// MOBILE SIDEBAR
+// ============================================================
+function toggleSidebar(force) {
+  const s = document.getElementById('sidebar')
+  const o = document.getElementById('overlay')
+  const isOpen = typeof force==='boolean' ? force : !s.classList.contains('open')
+  s.classList.toggle('open', isOpen)
+  o.classList.toggle('open', isOpen)
+}
+
+// ============================================================
+// GREETING
+// ============================================================
+function setGreeting() {
+  const h = new Date().getHours()
+  const g = h<12?'morning':h<17?'afternoon':'evening'
+  document.getElementById('greetingTitle').textContent = `Good ${g}, Trader 👋`
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Restore theme
+  const savedTheme = localStorage.getItem('ww_theme') || 'dark'
+  document.documentElement.setAttribute('data-theme', savedTheme)
+  document.getElementById('themeLabel').textContent = savedTheme==='dark' ? 'Light Mode' : 'Dark Mode'
+
+  seedData()
+  setGreeting()
+  renderAll()
+
+  // Set today's date on trade modal
+  document.getElementById('t_date').value = new Date().toISOString().split('T')[0]
+})
+</script>
+</body>
+</html>
