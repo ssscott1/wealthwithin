@@ -235,6 +235,21 @@ textarea{resize:vertical;min-height:70px}
 .strategy-pill{font-size:10px;background:rgba(59,130,246,.12);color:var(--blue);padding:2px 7px;border-radius:20px;font-weight:600;white-space:nowrap}
 
 /* ============================================================
+   AUTOCOMPLETE
+   ============================================================ */
+.ac-wrap{position:relative}
+.ac-list{position:absolute;top:calc(100% + 3px);left:0;right:0;background:var(--bg2);border:1px solid var(--border);border-radius:8px;z-index:700;overflow:hidden;box-shadow:var(--shadow);display:none;max-height:240px;overflow-y:auto}
+.ac-item{padding:9px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover{background:var(--bg3)}
+.ac-ticker{font-weight:700;min-width:52px}
+.ac-name{color:var(--text2);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ac-loading{padding:10px 12px;font-size:12px;color:var(--text2);text-align:center}
+.price-tag{font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px}
+.price-up{background:var(--green-bg);color:var(--green)}
+.price-dn{background:var(--red-bg);color:var(--red)}
+
+/* ============================================================
    MISC
    ============================================================ */
 .flex{display:flex}
@@ -403,10 +418,13 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
   <div class="view" id="view-portfolio">
     <div class="flex justify-between items-center">
       <div><div class="page-title">Portfolio</div><div class="page-sub">Your current holdings &amp; positions</div></div>
-      <button class="btn btn-primary" onclick="openTradeModal()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Trade
-      </button>
+      <div class="flex gap-2">
+        <button id="refreshPricesBtn" class="btn btn-outline" onclick="refreshAllPrices()">⟳ Live Prices</button>
+        <button class="btn btn-primary" onclick="openTradeModal()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Trade
+        </button>
+      </div>
     </div>
     <div class="grid grid-4 mb-4 mt-2" id="portfolioSummaryCards"></div>
     <div class="card">
@@ -671,8 +689,13 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
     <div class="modal-body">
       <div class="form-section-title">Trade Details</div>
       <div class="form-row form-row-2">
-        <div class="form-group"><label class="form-label">Ticker *</label><input id="t_ticker" placeholder="e.g. BHP" oninput="this.value=this.value.toUpperCase()"></div>
-        <div class="form-group"><label class="form-label">Company Name *</label><input id="t_company" placeholder="e.g. BHP Group Limited"></div>
+        <div class="form-group"><label class="form-label">Ticker * <span class="form-hint">ASX search</span></label>
+          <div class="ac-wrap">
+            <input id="t_ticker" placeholder="e.g. BHP — type to search ASX" autocomplete="off" oninput="this.value=this.value.toUpperCase();onTickerInput(this.value,'t_ticker','t_company')">
+            <div class="ac-list" id="t_ticker_list"></div>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Company Name *</label><input id="t_company" placeholder="Auto-filled from search"></div>
         <div class="form-group"><label class="form-label">Direction *</label>
           <select id="t_dir"><option value="buy">Buy</option><option value="sell">Sell</option></select></div>
         <div class="form-group"><label class="form-label">Trade Date *</label><input id="t_date" type="date"></div>
@@ -738,8 +761,13 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
     </div>
     <div class="modal-body">
       <div class="form-row form-row-2">
-        <div class="form-group"><label class="form-label">Ticker *</label><input id="w_ticker" placeholder="BHP" oninput="this.value=this.value.toUpperCase()"></div>
-        <div class="form-group"><label class="form-label">Company Name *</label><input id="w_company" placeholder="BHP Group Limited"></div>
+        <div class="form-group"><label class="form-label">Ticker * <span class="form-hint">ASX search</span></label>
+          <div class="ac-wrap">
+            <input id="w_ticker" placeholder="BHP — type to search ASX" autocomplete="off" oninput="this.value=this.value.toUpperCase();onTickerInput(this.value,'w_ticker','w_company')">
+            <div class="ac-list" id="w_ticker_list"></div>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Company Name *</label><input id="w_company" placeholder="Auto-filled from search"></div>
         <div class="form-group"><label class="form-label">Sector</label><input id="w_sector" placeholder="e.g. Materials"></div>
         <div class="form-group"><label class="form-label">Priority</label>
           <select id="w_priority"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
@@ -942,10 +970,6 @@ function computeStats() {
 function renderSummaryCards() {
   const holdings = computeHoldings()
   const stats = computeStats()
-  const unrealisedPnl = holdings.reduce((s,h)=>{
-    const cur = h.avgCost // no live prices in offline mode
-    return s + 0 // would be (curPrice - avgCost) * qty
-  }, 0)
   const totalValue = holdings.reduce((s,h)=>s+h.totalCost, 0)
 
   const fyYear = new Date().getMonth()>=6 ? new Date().getFullYear() : new Date().getFullYear()-1
@@ -973,9 +997,9 @@ function renderSummaryCards() {
 }
 
 // ============================================================
-// RENDER HOLDINGS
+// RENDER HOLDINGS (with live prices)
 // ============================================================
-function renderHoldings() {
+async function renderHoldings() {
   const holdings = computeHoldings()
   const tbody = document.getElementById('holdingsBody')
   if (!tbody) return
@@ -986,17 +1010,39 @@ function renderHoldings() {
   tbody.innerHTML = holdings.map(h => `
     <tr>
       <td><strong>${h.ticker}</strong></td>
-      <td style="color:var(--text2)">${h.company}</td>
+      <td style="color:var(--text2);font-size:12px">${h.company}</td>
       <td>${h.qty.toLocaleString()}</td>
       <td>${fmt(h.avgCost)}</td>
       <td>${fmt(h.totalCost)}</td>
-      <td style="color:var(--text2)">—</td>
-      <td>${fmt(h.totalCost)}</td>
-      <td style="color:var(--text2)">—</td>
-      <td style="color:var(--text2)">—</td>
+      <td id="hp-${h.ticker}" style="color:var(--text2)"><span style="opacity:.4">⟳</span></td>
+      <td id="hmv-${h.ticker}" style="color:var(--text2)">${fmt(h.totalCost)}</td>
+      <td id="hpnl-${h.ticker}" style="color:var(--text2)">—</td>
+      <td id="hpnlp-${h.ticker}" style="color:var(--text2)">—</td>
       <td style="color:var(--text2)">${fmtDate(h.firstDate)}</td>
       <td></td>
     </tr>`).join('')
+
+  // Fetch live prices and update cells
+  const prices = await fetchMultiplePrices(holdings.map(h => h.ticker))
+  holdings.forEach((h, i) => {
+    const p = prices[i]
+    const priceEl = document.getElementById(`hp-${h.ticker}`)
+    const mvEl = document.getElementById(`hmv-${h.ticker}`)
+    const pnlEl = document.getElementById(`hpnl-${h.ticker}`)
+    const pnlPEl = document.getElementById(`hpnlp-${h.ticker}`)
+    if (!p) {
+      if (priceEl) priceEl.innerHTML = '<span style="color:var(--text3);font-size:11px">N/A</span>'
+      return
+    }
+    const mktVal = p.price * h.qty
+    const pnl = mktVal - h.totalCost
+    const pnlPct = h.totalCost > 0 ? pnl / h.totalCost * 100 : 0
+    const chgClass = p.change >= 0 ? 'price-up' : 'price-dn'
+    if (priceEl) priceEl.innerHTML = `${fmt(p.price)} <span class="price-tag ${chgClass}">${p.change >= 0 ? '+' : ''}${p.change.toFixed(2)}%</span>`
+    if (mvEl) { mvEl.textContent = fmt(mktVal); mvEl.style.color = '' }
+    if (pnlEl) { pnlEl.textContent = fmt(pnl); pnlEl.className = pnl >= 0 ? 'pos' : 'neg' }
+    if (pnlPEl) { pnlPEl.textContent = (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(2) + '%'; pnlPEl.className = pnlPct >= 0 ? 'pos' : 'neg' }
+  })
 }
 
 // ============================================================
@@ -1180,9 +1226,131 @@ function getColor() {
 }
 
 // ============================================================
-// RENDER WATCHLIST
+// YAHOO FINANCE ASX — SEARCH & LIVE PRICES
 // ============================================================
-function renderWatchlist() {
+const priceCache = {}
+const CORS_PROXY = 'https://corsproxy.io/?url='
+
+async function yahooFetch(url) {
+  // Try direct first (works in some browsers/environments)
+  try {
+    const res = await fetch(url, { mode: 'cors' })
+    if (res.ok) return res.json()
+  } catch (_) { /* fall through to proxy */ }
+  // Fallback: CORS proxy
+  const res = await fetch(CORS_PROXY + encodeURIComponent(url))
+  if (!res.ok) throw new Error('fetch failed')
+  return res.json()
+}
+
+async function fetchASXPrice(ticker) {
+  const key = ticker.toUpperCase()
+  // Cache for 5 minutes
+  if (priceCache[key] && Date.now() - priceCache[key].ts < 5 * 60 * 1000) return priceCache[key]
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${key}.AX?interval=1d&range=1d`
+    const data = await yahooFetch(url)
+    const result = data?.chart?.result?.[0]
+    if (!result) return null
+    const meta = result.meta
+    const price = meta.regularMarketPrice ?? meta.previousClose
+    const prev = meta.previousClose ?? meta.chartPreviousClose
+    const change = prev && prev !== 0 ? (price - prev) / prev * 100 : 0
+    const entry = { price, change, name: meta.shortName || key, ts: Date.now() }
+    priceCache[key] = entry
+    return entry
+  } catch {
+    return null
+  }
+}
+
+async function fetchMultiplePrices(tickers) {
+  return Promise.all(tickers.map(t => fetchASXPrice(t)))
+}
+
+async function refreshAllPrices() {
+  const btn = document.getElementById('refreshPricesBtn')
+  if (btn) { btn.disabled = true; btn.textContent = '⟳ Refreshing...' }
+  // Clear cache so we get fresh prices
+  Object.keys(priceCache).forEach(k => delete priceCache[k])
+  await renderHoldings()
+  await renderWatchlist()
+  if (btn) { btn.disabled = false; btn.textContent = '⟳ Live Prices' }
+  toast('Prices refreshed ✓')
+}
+
+// Debounced ASX ticker search
+let _searchTimer = null
+function onTickerInput(query, tickerInputId, companyInputId) {
+  const listEl = document.getElementById(tickerInputId + '_list')
+  if (!listEl) return
+  if (query.length < 1) { listEl.style.display = 'none'; return }
+  listEl.innerHTML = '<div class="ac-loading">Searching ASX...</div>'
+  listEl.style.display = 'block'
+  clearTimeout(_searchTimer)
+  _searchTimer = setTimeout(() => searchASX(query, tickerInputId, companyInputId), 320)
+}
+
+async function searchASX(query, tickerInputId, companyInputId) {
+  const listEl = document.getElementById(tickerInputId + '_list')
+  if (!listEl) return
+  try {
+    const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=10&newsCount=0&listsCount=0&enableFuzzyQuery=false`
+    const data = await yahooFetch(url)
+    const quotes = (data?.quotes || []).filter(q =>
+      q.exchange === 'ASX' || (q.symbol || '').endsWith('.AX')
+    )
+    if (!quotes.length) {
+      listEl.innerHTML = '<div class="ac-loading">No ASX results found</div>'
+      return
+    }
+    listEl.innerHTML = quotes.slice(0, 8).map(q => {
+      const ticker = (q.symbol || '').replace(/\.AX$/i, '').toUpperCase()
+      const name = (q.longname || q.shortname || ticker).replace(/'/g, '&#39;')
+      return `<div class="ac-item" onclick="selectTicker('${ticker}','${name}','${tickerInputId}','${companyInputId}')">
+        <span class="ac-ticker">${ticker}</span>
+        <span class="ac-name">${name}</span>
+      </div>`
+    }).join('')
+    listEl.style.display = 'block'
+  } catch {
+    listEl.innerHTML = '<div class="ac-loading">Search unavailable</div>'
+  }
+}
+
+async function selectTicker(ticker, name, tickerInputId, companyInputId) {
+  const tickerEl = document.getElementById(tickerInputId)
+  const companyEl = document.getElementById(companyInputId)
+  const listEl = document.getElementById(tickerInputId + '_list')
+  if (tickerEl) tickerEl.value = ticker
+  if (companyEl) companyEl.value = name
+  if (listEl) listEl.style.display = 'none'
+
+  // Pre-fill current price for trade modal
+  if (tickerInputId === 't_ticker') {
+    const priceEl = document.getElementById('t_price')
+    if (priceEl && !priceEl.value) {
+      const p = await fetchASXPrice(ticker)
+      if (p) {
+        priceEl.value = p.price.toFixed(3)
+        calcTotal()
+        toast(`${ticker}: $${p.price.toFixed(2)} (${p.change >= 0 ? '+' : ''}${p.change.toFixed(2)}%)`)
+      }
+    }
+  }
+}
+
+// Close autocomplete dropdowns when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ac-wrap')) {
+    document.querySelectorAll('.ac-list').forEach(l => { l.style.display = 'none' })
+  }
+})
+
+// ============================================================
+// RENDER WATCHLIST (with live prices)
+// ============================================================
+async function renderWatchlist() {
   const el = document.getElementById('watchlistGrid')
   if (!el) return
   const items = DB.watchlist
@@ -1206,6 +1374,7 @@ function renderWatchlist() {
         </div>
       </div>
       <div class="watch-name">${w.company}</div>
+      <div id="wp-${w.ticker}-${w.id}" style="margin-top:6px;min-height:20px"><span style="opacity:.35;font-size:11px">⟳ fetching price...</span></div>
       ${w.sector?`<div class="text-xs mt-2" style="color:var(--text3)">${w.sector}</div>`:''}
       ${w.strategy?`<div class="strategy-pill" style="display:inline-block;margin-top:8px">${stratLabel(w.strategy)}</div>`:''}
       ${(w.support||w.resist)?`
@@ -1215,6 +1384,17 @@ function renderWatchlist() {
       </div>`:''}
       ${w.techNotes?`<div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.5">${w.techNotes}</div>`:''}
     </div>`).join('')
+
+  // Fetch live prices for all watchlist items
+  const prices = await fetchMultiplePrices(items.map(w => w.ticker))
+  items.forEach((w, i) => {
+    const p = prices[i]
+    const priceEl = document.getElementById(`wp-${w.ticker}-${w.id}`)
+    if (!priceEl) return
+    if (!p) { priceEl.innerHTML = '<span style="color:var(--text3);font-size:11px">Price unavailable</span>'; return }
+    const chgClass = p.change >= 0 ? 'price-up' : 'price-dn'
+    priceEl.innerHTML = `<span style="font-size:15px;font-weight:700">${fmt(p.price)}</span> <span class="price-tag ${chgClass}">${p.change >= 0 ? '+' : ''}${p.change.toFixed(2)}%</span>`
+  })
 }
 
 // ============================================================
