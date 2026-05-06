@@ -70,7 +70,8 @@ export default function AccountDetailPage() {
 
   const stats = calculatePerformanceStats(trades, enrichedHoldings)
   const fyLabel = getAustralianFYLabel()
-  const totalValue = enrichedHoldings.reduce((s, h) => s + (h.current_value ?? h.total_cost), 0)
+  const totalInvested = enrichedHoldings.reduce((s, h) => s + Number(h.total_cost), 0)
+  const totalValue = enrichedHoldings.reduce((s, h) => s + (h.current_value ?? Number(h.total_cost)), 0)
 
   const exportCSV = () => {
     const rows = [
@@ -127,8 +128,15 @@ export default function AccountDetailPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard title="Total Market Value" value={formatCurrency(totalValue)} icon={<BarChart3 />} />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <MetricCard title="Amount Invested" value={formatCurrency(totalInvested)} icon={<BarChart3 />} />
+        <MetricCard
+          title="Market Value"
+          value={formatCurrency(totalValue)}
+          sub={totalInvested > 0 ? `${((totalValue - totalInvested) / totalInvested * 100).toFixed(1)}%` : undefined}
+          positive={enrichedHoldings.length > 0 ? totalValue >= totalInvested : undefined}
+          icon={<BarChart3 />}
+        />
         <MetricCard
           title="Unrealised P&L"
           value={formatCurrency(stats.total_unrealised_pnl)}

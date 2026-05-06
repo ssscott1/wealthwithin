@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
   TrendingUp, TrendingDown, Briefcase, Plus, BarChart3,
-  BookOpen, Eye, Target, Info
+  Target, Info
 } from 'lucide-react'
 import type { TradingAccount, Trade, Holding } from '@/types'
 
@@ -20,6 +20,7 @@ export default function DashboardPage() {
   const [accounts, setAccounts] = useState<TradingAccount[]>([])
   const [allTrades, setAllTrades] = useState<Trade[]>([])
   const [allHoldings, setAllHoldings] = useState<Holding[]>([])
+  const [prices, setPrices] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -33,11 +34,26 @@ export default function DashboardPage() {
       setAllTrades((trades ?? []) as Trade[])
       setAllHoldings((holdings ?? []) as Holding[])
       setLoading(false)
+
+      if (holdings && holdings.length > 0) {
+        const tickers = [...new Set((holdings as Holding[]).map(h => h.ticker))].join(',')
+        const res = await fetch(`/api/prices?tickers=${tickers}`)
+        if (res.ok) setPrices(await res.json())
+      }
     }
     load()
   }, [])
 
-  const stats = calculatePerformanceStats(allTrades, allHoldings)
+  const enrichedHoldings = allHoldings.map(h => {
+    const price = prices[h.ticker]
+    if (!price) return h
+    const currentValue = price * Number(h.quantity)
+    return { ...h, current_value: currentValue, unrealised_pnl: currentValue - Number(h.total_cost) }
+  })
+
+  const totalInvested = enrichedHoldings.reduce((s, h) => s + Number(h.total_cost), 0)
+  const totalMarketValue = enrichedHoldings.reduce((s, h) => s + (h.current_value ?? Number(h.total_cost)), 0)
+  const stats = calculatePerformanceStats(allTrades, enrichedHoldings)
   const fyLabel = getAustralianFYLabel()
 
   if (loading) {
@@ -56,9 +72,7 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             Good {getGreeting()}, {profile?.name?.split(' ')[0] ?? 'Trader'}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-            {fyLabel} • Wealth Within Institute – Diploma of Share Trading
-          </p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{fyLabel}</p>
         </div>
         <Link href="/accounts">
           <Button>
@@ -71,12 +85,16 @@ export default function DashboardPage() {
       {/* Overall Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
-          title="Total Unrealised P&L"
-          value={formatCurrency(stats.total_unrealised_pnl)}
-          sub={formatPercent(allHoldings.length > 0
-            ? (stats.total_unrealised_pnl / allHoldings.reduce((s, h) => s + h.total_cost, 0)) * 100 : 0)}
-          positive={stats.total_unrealised_pnl >= 0}
+          title="Total Invested"
+          value={formatCurrency(totalInvested)}
           icon={<BarChart3 className="h-5 w-5" />}
+        />
+        <SummaryCard
+          title="Total Market Value"
+          value={formatCurrency(totalMarketValue)}
+          sub={totalInvested > 0 ? formatPercent(((totalMarketValue - totalInvested) / totalInvested) * 100) : undefined}
+          positive={totalMarketValue >= totalInvested}
+          icon={<TrendingUp className="h-5 w-5" />}
         />
         <SummaryCard
           title={`${fyLabel} Realised P&L`}
@@ -90,15 +108,7 @@ export default function DashboardPage() {
           sub={`${stats.winning_trades}W / ${stats.losing_trades}L of ${stats.total_trades} trades`}
           positive={stats.win_loss_ratio >= 1}
           icon={<Target className="h-5 w-5" />}
-          tooltip="Module 3 Section 3: Win/Loss Ratio = Number of winning trades ÷ Number of losing trades"
-        />
-        <SummaryCard
-          title="Profit/Loss Ratio"
-          value={stats.profit_loss_ratio.toFixed(2)}
-          sub={`Expectancy: ${formatCurrency(stats.expectancy)}`}
-          positive={stats.profit_loss_ratio >= 1}
-          icon={<BarChart3 className="h-5 w-5" />}
-          tooltip="Module 3 Section 3: Profit/Loss Ratio = Average win ÷ Average loss. Expectancy = (Win Rate × Avg Win) − (Loss Rate × Avg Loss)"
+          tooltip="Number of winning trades ÷ Number of losing trades"
         />
       </div>
 
@@ -130,9 +140,11 @@ export default function DashboardPage() {
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {accounts.map(account => {
               const accountTrades = allTrades.filter(t => t.account_id === account.id)
-              const accountHoldings = allHoldings.filter(h => h.account_id === account.id)
+              const accountHoldings = enrichedHoldings.filter(h => h.account_id === account.id)
               const astats = calculatePerformanceStats(accountTrades, accountHoldings)
-              const totalValue = accountHoldings.reduce((s, h) => s + (h.current_value ?? h.total_cost), 0)
+              const accountInvested = accountHoldings.reduce((s, h) => s + Number(h.total_cost), 0)
+              const accountValue = accountHoldings.reduce((s, h) => s + (h.current_value ?? Number(h.total_cost)), 0)
+              const hasPrices = Object.keys(prices).length > 0
               return (
                 <Link key={account.id} href={`/accounts/${account.id}`}>
                   <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
@@ -148,8 +160,14 @@ export default function DashboardPage() {
                     <CardContent>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
+                          <span className="text-slate-500 dark:text-slate-400">Invested</span>
+                          <span className="font-medium text-slate-900 dark:text-slate-100">{formatCurrency(accountInvested)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
                           <span className="text-slate-500 dark:text-slate-400">Market Value</span>
-                          <span className="font-medium text-slate-900 dark:text-slate-100">{formatCurrency(totalValue)}</span>
+                          <span className={`font-medium ${hasPrices && accountHoldings.length > 0 ? (accountValue >= accountInvested ? 'text-positive' : 'text-negative') : 'text-slate-900 dark:text-slate-100'}`}>
+                            {formatCurrency(accountValue)}
+                          </span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-slate-500 dark:text-slate-400">Unrealised P&L</span>
@@ -177,36 +195,6 @@ export default function DashboardPage() {
             </Link>
           </div>
         )}
-      </div>
-
-      {/* Quick Links – WW Module Reference */}
-      <div>
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">WW Institute Reference</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            { title: "Dow's Trend Theory", module: 'Module 3', desc: 'Entry on confirmed trend continuation with rising volume', href: '/journal' },
-            { title: "Gann's Swing Theory", module: 'Module 3', desc: 'Identify swing highs/lows for entry and stop placement', href: '/journal' },
-            { title: "Gann's Trend Theory", module: 'Module 3', desc: 'Trade in direction of the main trend', href: '/journal' },
-            { title: 'Trend Line Theory', module: 'Module 3', desc: 'Draw trend lines and trade bounces from support', href: '/journal' },
-            { title: 'Top-Down Analysis', module: 'Module 1', desc: 'Market → Sector → Stock analysis framework', href: '/watchlist' },
-            { title: 'Money Management', module: 'Module 1', desc: 'Position sizing, max 2% risk per trade rule', href: '/accounts' },
-          ].map(item => (
-            <Link key={item.title} href={item.href}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="pt-4 pb-4">
-                  <div className="flex items-start gap-3">
-                    <BookOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-sm text-slate-900 dark:text-slate-100">{item.title}</p>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400">{item.module}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{item.desc}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
       </div>
     </div>
   )
