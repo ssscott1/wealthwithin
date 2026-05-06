@@ -1337,16 +1337,38 @@ function exportCSV() {
 // YAHOO FINANCE — PRICES & SEARCH
 // ============================================================
 const priceCache = {}
-const PROXY = 'https://corsproxy.io/?url='
+
+// Multiple CORS proxies tried in order until one works
+const PROXIES = [
+  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+]
+
+async function fetchWithTimeout(url, ms=6000) {
+  const ctrl = new AbortController()
+  const t = setTimeout(() => ctrl.abort(), ms)
+  try {
+    const r = await fetch(url, { signal: ctrl.signal })
+    clearTimeout(t)
+    return r
+  } catch(e) { clearTimeout(t); throw e }
+}
 
 async function yahooFetch(url) {
+  // 1. Try direct (works in some environments / Electron / local file)
   try {
-    const r = await fetch(url, { mode:'cors' })
+    const r = await fetchWithTimeout(url, 4000)
     if (r.ok) return r.json()
   } catch(_) {}
-  const r = await fetch(PROXY + encodeURIComponent(url))
-  if (!r.ok) throw new Error('fetch failed')
-  return r.json()
+  // 2. Try each proxy in order
+  for (const makeProxy of PROXIES) {
+    try {
+      const r = await fetchWithTimeout(makeProxy(url), 7000)
+      if (r.ok) return r.json()
+    } catch(_) {}
+  }
+  throw new Error('All fetch attempts failed')
 }
 
 async function fetchASXPrice(ticker) {
@@ -1388,26 +1410,50 @@ function onTickerInput(query, tickerEl, companyEl) {
   list.innerHTML = '<div class="ac-loading">Searching ASX...</div>'
   list.style.display = 'block'
   clearTimeout(_sTimer)
-  _sTimer = setTimeout(() => searchASX(query, tickerEl, companyEl), 320)
+  _sTimer = setTimeout(() => searchASX(query, tickerEl, companyEl), 350)
 }
 
 async function searchASX(query, tickerInputId, companyInputId) {
   const list = document.getElementById(tickerInputId + '_list')
   if (!list) return
+  // Yahoo autoc endpoint — no auth required, returns ASX results reliably
+  const autoc = `https://autoc.finance.yahoo.com/autoc?query=${encodeURIComponent(query)}&region=AU&lang=en-AU`
+  // Fallback: v1 search endpoint
+  const v1 = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=10&newsCount=0&listsCount=0`
+
+  let quotes = []
   try {
-    const d = await yahooFetch(`https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=10&newsCount=0&listsCount=0`)
-    const quotes = (d?.quotes||[]).filter(q => q.exchange==='ASX' || (q.symbol||'').endsWith('.AX'))
-    if (!quotes.length) { list.innerHTML='<div class="ac-loading">No ASX results found</div>'; return }
-    list.innerHTML = quotes.slice(0,8).map(q => {
-      const t = (q.symbol||'').replace(/\.AX$/i,'').toUpperCase()
-      const n = (q.longname||q.shortname||t).replace(/'/g,"&#39;")
-      return `<div class="ac-item" onclick="selectTicker('${t}','${n}','${tickerInputId}','${companyInputId}')">
-        <span class="ac-ticker">${t}</span><span class="ac-name">${n}</span></div>`
-    }).join('')
-    list.style.display = 'block'
-  } catch {
-    list.innerHTML = '<div class="ac-loading">Search unavailable</div>'
+    const d = await yahooFetch(autoc)
+    const results = d?.ResultSet?.Result || []
+    quotes = results
+      .filter(q => q.exch === 'ASX' || (q.symbol||'').endsWith('.AX'))
+      .map(q => ({
+        symbol: q.symbol,
+        name: q.name,
+      }))
+  } catch(_) {}
+
+  // Fallback to v1 search if autoc returned nothing
+  if (!quotes.length) {
+    try {
+      const d = await yahooFetch(v1)
+      quotes = (d?.quotes||[])
+        .filter(q => q.exchange==='ASX' || (q.symbol||'').endsWith('.AX'))
+        .map(q => ({ symbol: q.symbol, name: q.longname||q.shortname||q.symbol }))
+    } catch(_) {}
   }
+
+  if (!quotes.length) {
+    list.innerHTML = '<div class="ac-loading">No ASX results found</div>'
+    return
+  }
+  list.innerHTML = quotes.slice(0,8).map(q => {
+    const t = (q.symbol||'').replace(/\.AX$/i,'').toUpperCase()
+    const n = (q.name||t).replace(/'/g,"&#39;")
+    return `<div class="ac-item" onclick="selectTicker('${t}','${n}','${tickerInputId}','${companyInputId}')">
+      <span class="ac-ticker">${t}</span><span class="ac-name">${n}</span></div>`
+  }).join('')
+  list.style.display = 'block'
 }
 
 async function selectTicker(ticker, name, tickerInputId, companyInputId) {
@@ -1427,7 +1473,7 @@ async function selectTicker(ticker, name, tickerInputId, companyInputId) {
     }
   }
 
-  // Watchlist modal: fetch and show preview
+  // Watchlist modal: fetch price and industry preview
   if (tickerInputId === 'w_ticker') {
     const fi = document.getElementById('w_fetchedInfo')
     const ni = document.getElementById('wi_name')
@@ -1437,12 +1483,15 @@ async function selectTicker(ticker, name, tickerInputId, companyInputId) {
     if (fi) fi.style.display = 'block'
     const p = await fetchASXPrice(ticker)
     if (p && pi) pi.innerHTML = `${fmt(p.price)} <span class="price-tag ${p.change>=0?'price-up':'price-dn'}">${p.change>=0?'+':''}${p.change.toFixed(2)}%</span>`
+    // Industry from quoteSummary — best-effort, non-blocking
     try {
       const q = await yahooFetch(`https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}.AX?modules=assetProfile,price`)
       const prof = q?.quoteSummary?.result?.[0]
       if (prof?.assetProfile?.industry && ii) ii.textContent = prof.assetProfile.industry
-      if (prof?.price?.longName && ni) ni.textContent = prof.price.longName
-      if (prof?.price?.longName && cEl) cEl.value = prof.price.longName
+      if (prof?.price?.longName) {
+        if (ni) ni.textContent = prof.price.longName
+        if (cEl) cEl.value = prof.price.longName
+      }
     } catch(_) {}
   }
 }
