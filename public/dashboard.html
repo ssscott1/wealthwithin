@@ -1,47 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Wealth Within Trader</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Trader Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-/* ============================================================
-   DESIGN TOKENS
-   ============================================================ */
-:root {
-  --bg:         #0f172a;
-  --bg2:        #1e293b;
-  --bg3:        #334155;
-  --border:     #334155;
-  --text:       #f1f5f9;
-  --text2:      #94a3b8;
-  --text3:      #64748b;
-  --green:      #10b981;
-  --green2:     #059669;
-  --green-bg:   rgba(16,185,129,.12);
-  --red:        #ef4444;
-  --red-bg:     rgba(239,68,68,.12);
-  --amber:      #f59e0b;
-  --amber-bg:   rgba(245,158,11,.12);
-  --blue:       #3b82f6;
-  --radius:     12px;
-  --shadow:     0 4px 24px rgba(0,0,0,.35);
-}
-[data-theme="light"] {
-  --bg:    #f8fafc;
-  --bg2:   #ffffff;
-  --bg3:   #f1f5f9;
-  --border:#e2e8f0;
-  --text:  #0f172a;
-  --text2: #475569;
-  --text3: #94a3b8;
-  --shadow:0 4px 24px rgba(0,0,0,.08);
-}
-
-/* ============================================================
-   RESET & BASE
-   ============================================================ */
+:root{--bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--border:#334155;--text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--green:#10b981;--green2:#059669;--green-bg:rgba(16,185,129,.12);--red:#ef4444;--red-bg:rgba(239,68,68,.12);--amber:#f59e0b;--amber-bg:rgba(245,158,11,.12);--blue:#3b82f6;--radius:12px;--shadow:0 4px 24px rgba(0,0,0,.35)}
+[data-theme="light"]{--bg:#f8fafc;--bg2:#ffffff;--bg3:#f1f5f9;--border:#e2e8f0;--text:#0f172a;--text2:#475569;--text3:#94a3b8;--shadow:0 4px 24px rgba(0,0,0,.08)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;transition:background .2s,color .2s}
@@ -57,68 +23,59 @@ tr:hover td{background:var(--bg3)}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
 
-/* ============================================================
-   LAYOUT
-   ============================================================ */
 .app{display:flex;min-height:100vh}
-.sidebar{width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100%;z-index:100;transition:transform .25s}
-.main{flex:1;margin-left:240px;padding:28px;max-width:1400px}
-@media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0;padding:16px}
-  .mobile-header{display:flex!important}
-}
+.sidebar{width:248px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100%;z-index:100;transition:transform .25s}
+.main{flex:1;margin-left:248px;padding:28px;max-width:1400px}
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0;padding:16px}.mobile-header{display:flex!important}}
 
-/* ============================================================
-   SIDEBAR
-   ============================================================ */
-.logo{padding:20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.logo-mark{width:36px;height:36px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+.logo{padding:18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-mark{width:34px;height:34px;background:var(--green);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
 .logo-text{font-weight:700;font-size:14px;line-height:1.2}
 .logo-sub{font-size:10px;color:var(--text2);font-weight:400}
-.nav{flex:1;overflow-y:auto;padding:12px 8px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .15s,color .15s;color:var(--text2);font-size:13px;font-weight:500;margin-bottom:2px}
+
+.portfolio-switcher{padding:10px 10px;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:center}
+.port-select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:12px;font-weight:500;flex:1;cursor:pointer}
+.port-select:focus{border-color:var(--green);box-shadow:none}
+.port-new-btn{width:28px;height:28px;border-radius:7px;background:var(--green-bg);color:var(--green);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.port-new-btn:hover{background:var(--green);color:#fff}
+
+.nav{flex:1;overflow-y:auto;padding:8px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:background .15s,color .15s;color:var(--text2);font-size:13px;font-weight:500;margin-bottom:2px}
 .nav-item:hover{background:var(--bg3);color:var(--text)}
 .nav-item.active{background:var(--green-bg);color:var(--green)}
 .nav-item svg{width:16px;height:16px;flex-shrink:0}
-.nav-section{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;padding:12px 12px 6px}
-.sidebar-bottom{padding:12px 8px;border-top:1px solid var(--border)}
+.nav-section{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;padding:10px 12px 4px;display:flex;align-items:center;justify-content:space-between}
+.nav-section-btn{font-size:18px;line-height:1;color:var(--text3);padding:0 2px;transition:color .15s}
+.nav-section-btn:hover{color:var(--green)}
+.plan-nav-item{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 14px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:12px;margin-bottom:1px;transition:background .15s;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.plan-nav-item:hover{background:var(--bg3);color:var(--text)}
+.plan-nav-item.active{background:var(--green-bg);color:var(--green)}
+
+.sidebar-bottom{padding:10px 8px;border-top:1px solid var(--border)}
 .theme-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--text2);font-size:13px;width:100%;transition:background .15s}
 .theme-btn:hover{background:var(--bg3);color:var(--text)}
 
-/* ============================================================
-   MOBILE HEADER
-   ============================================================ */
 .mobile-header{display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;align-items:center;justify-content:space-between}
 .hamburger{padding:6px;border-radius:8px;color:var(--text2)}
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
 .overlay.open{display:block}
 
-/* ============================================================
-   VIEWS
-   ============================================================ */
 .view{display:none;animation:fadeIn .2s ease-out}
 .view.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-/* ============================================================
-   TYPOGRAPHY
-   ============================================================ */
 .page-title{font-size:22px;font-weight:700;margin-bottom:4px}
-.page-sub{color:var(--text2);font-size:13px;margin-bottom:24px}
+.page-sub{color:var(--text2);font-size:13px;margin-bottom:20px}
 .section-title{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
 .badge-green{background:var(--green-bg);color:var(--green)}
 .badge-red{background:var(--red-bg);color:var(--red)}
 .badge-amber{background:var(--amber-bg);color:var(--amber)}
 .badge-gray{background:var(--bg3);color:var(--text2)}
+.badge-blue{background:rgba(59,130,246,.12);color:var(--blue)}
 .pos{color:var(--green)!important}
 .neg{color:var(--red)!important}
 
-/* ============================================================
-   CARDS
-   ============================================================ */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
 .card-sm{padding:14px 18px}
 .grid{display:grid;gap:16px}
@@ -128,22 +85,16 @@ tr:hover td{background:var(--bg3)}
 @media(max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
 
-/* ============================================================
-   METRIC CARD
-   ============================================================ */
 .metric{display:flex;flex-direction:column;gap:6px}
 .metric-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
-.metric-value{font-size:26px;font-weight:700}
+.metric-value{font-size:24px;font-weight:700}
 .metric-sub{font-size:12px;color:var(--text2)}
-.metric-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.metric-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
 .metric-icon.green{background:var(--green-bg);color:var(--green)}
 .metric-icon.red{background:var(--red-bg);color:var(--red)}
 .metric-icon.amber{background:var(--amber-bg);color:var(--amber)}
 .metric-icon.blue{background:rgba(59,130,246,.12);color:var(--blue)}
 
-/* ============================================================
-   BUTTONS
-   ============================================================ */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-weight:500;font-size:13px;transition:all .15s;cursor:pointer}
 .btn-primary{background:var(--green);color:#fff}
 .btn-primary:hover{background:var(--green2)}
@@ -155,23 +106,16 @@ tr:hover td{background:var(--bg3)}
 .btn-icon{padding:6px;border-radius:6px;color:var(--text2)}
 .btn-icon:hover{background:var(--bg3);color:var(--text)}
 
-/* ============================================================
-   FORM
-   ============================================================ */
 .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .form-label{font-size:12px;font-weight:600;color:var(--text2)}
 .form-row{display:grid;gap:12px}
 .form-row-2{grid-template-columns:1fr 1fr}
 .form-row-3{grid-template-columns:1fr 1fr 1fr}
 @media(max-width:600px){.form-row-2,.form-row-3{grid-template-columns:1fr}}
-.form-hint{font-size:11px;color:var(--text3)}
+.form-hint{font-size:11px;color:var(--text3);font-weight:400}
 textarea{resize:vertical;min-height:70px}
-.form-section{margin-bottom:20px}
-.form-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px}
+.form-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px}
 
-/* ============================================================
-   MODAL
-   ============================================================ */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;padding:16px}
 .modal-bg.open{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}
@@ -180,124 +124,91 @@ textarea{resize:vertical;min-height:70px}
 .modal-body{padding:20px 24px}
 .modal-footer{padding:0 24px 20px;display:flex;gap:8px;justify-content:flex-end}
 
-/* ============================================================
-   TABLE WRAPPER
-   ============================================================ */
 .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
 .table-wrap table{min-width:600px}
-.empty-state{padding:48px 24px;text-align:center;color:var(--text2)}
-.empty-icon{font-size:48px;margin-bottom:12px;opacity:.3}
+.empty-state{padding:40px 24px;text-align:center;color:var(--text2)}
+.empty-icon{font-size:40px;margin-bottom:10px;opacity:.3}
 .empty-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px}
 
-/* ============================================================
-   TABS
-   ============================================================ */
-.tabs{display:flex;gap:4px;background:var(--bg3);padding:4px;border-radius:10px;margin-bottom:20px;width:fit-content}
-.tab{padding:6px 14px;border-radius:7px;font-size:13px;font-weight:500;color:var(--text2);transition:all .15s}
-.tab.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.tab:hover:not(.active){color:var(--text)}
-
-/* ============================================================
-   CHART CONTAINERS
-   ============================================================ */
 .chart-wrap{position:relative;height:220px}
 
-/* ============================================================
-   INFO BOX
-   ============================================================ */
-.info-box{background:var(--green-bg);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:14px 16px;font-size:12px;color:var(--text2);line-height:1.6}
-.info-box strong{color:var(--green)}
+.warning-banner{background:var(--amber-bg);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:12px;display:none}
+.warning-banner.show{display:block}
 
-/* ============================================================
-   WATCHLIST CARDS
-   ============================================================ */
+.capital-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:5px}
+.capital-bar-bg{background:var(--bg3);border-radius:4px;height:7px;overflow:hidden}
+.capital-bar-fill{height:100%;border-radius:4px;background:var(--green);transition:width .5s}
+.capital-bar-fill.warn{background:var(--amber)}
+.capital-bar-fill.over{background:var(--red)}
+
 .watch-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:box-shadow .15s}
 .watch-card:hover{box-shadow:var(--shadow)}
 .watch-ticker{font-size:20px;font-weight:700}
-.watch-name{font-size:12px;color:var(--text2)}
+.watch-name{font-size:12px;color:var(--text2);margin-top:2px}
 
-/* ============================================================
-   PROGRESS BAR
-   ============================================================ */
-.progress-bg{background:var(--bg3);border-radius:4px;height:8px;overflow:hidden}
-.progress-fill{height:100%;border-radius:4px;transition:width .5s}
-
-/* ============================================================
-   NOTIFICATION TOAST
-   ============================================================ */
 .toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.error{background:var(--red)}
 
-/* ============================================================
-   STRATEGY PILL
-   ============================================================ */
-.strategy-pill{font-size:10px;background:rgba(59,130,246,.12);color:var(--blue);padding:2px 7px;border-radius:20px;font-weight:600;white-space:nowrap}
-
-/* ============================================================
-   AUTOCOMPLETE
-   ============================================================ */
-.ac-wrap{position:relative}
-.ac-list{position:absolute;top:calc(100% + 3px);left:0;right:0;background:var(--bg2);border:1px solid var(--border);border-radius:8px;z-index:700;overflow:hidden;box-shadow:var(--shadow);display:none;max-height:240px;overflow-y:auto}
-.ac-item{padding:9px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
-.ac-item:last-child{border-bottom:none}
-.ac-item:hover{background:var(--bg3)}
-.ac-ticker{font-weight:700;min-width:52px}
-.ac-name{color:var(--text2);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ac-loading{padding:10px 12px;font-size:12px;color:var(--text2);text-align:center}
 .price-tag{font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px}
 .price-up{background:var(--green-bg);color:var(--green)}
 .price-dn{background:var(--red-bg);color:var(--red)}
 
-/* ============================================================
-   MISC
-   ============================================================ */
-.flex{display:flex}
-.items-center{align-items:center}
-.justify-between{justify-content:space-between}
-.gap-2{gap:8px}
-.gap-3{gap:12px}
-.gap-4{gap:16px}
-.mt-2{margin-top:8px}
-.mt-4{margin-top:16px}
-.mt-6{margin-top:24px}
-.mb-4{margin-bottom:16px}
-.text-sm{font-size:12px}
-.text-xs{font-size:11px}
-.text-right{text-align:right}
-.font-bold{font-weight:700}
-.font-medium{font-weight:500}
-.w-full{width:100%}
+.ac-wrap{position:relative}
+.ac-list{position:absolute;top:calc(100% + 3px);left:0;right:0;background:var(--bg2);border:1px solid var(--border);border-radius:8px;z-index:700;overflow:hidden;box-shadow:var(--shadow);display:none;max-height:230px;overflow-y:auto}
+.ac-item{padding:9px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover{background:var(--bg3)}
+.ac-ticker{font-weight:700;min-width:50px;flex-shrink:0}
+.ac-name{color:var(--text2);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ac-loading{padding:10px 12px;font-size:12px;color:var(--text2);text-align:center}
+
+.fetched-info{background:var(--bg3);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;display:none}
+.fetched-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0}
+.fetched-label{color:var(--text2)}
+.fetched-val{font-weight:600}
+
+.plan-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.plan-detail-grid{grid-template-columns:1fr}}
+.key-level{padding:12px;background:var(--bg3);border-radius:8px;text-align:center}
+.key-level-label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-bottom:4px}
+.key-level-val{font-size:16px;font-weight:700}
+
+.flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}
+.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}
+.mt-2{margin-top:8px}.mt-4{margin-top:16px}.mt-6{margin-top:24px}.mb-4{margin-bottom:16px}
+.text-sm{font-size:12px}.text-xs{font-size:11px}.font-bold{font-weight:700}.w-full{width:100%}
 hr{border:none;border-top:1px solid var(--border);margin:16px 0}
 </style>
 </head>
 <body>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- MOBILE HEADER -->
 <div class="mobile-header" id="mobileHeader">
   <button class="hamburger" onclick="toggleSidebar()">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
-  <span style="font-weight:700">WW Trader</span>
+  <span style="font-weight:700">Trader</span>
   <button class="btn-icon" onclick="toggleTheme()">
-    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="themeIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
   </button>
 </div>
 
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
 <div class="app">
-<!-- ============================================================
-     SIDEBAR
-     ============================================================ -->
 <aside class="sidebar" id="sidebar">
   <div class="logo">
-    <div class="logo-mark">WW</div>
-    <div><div class="logo-text">WW Trader</div><div class="logo-sub">Wealth Within Institute</div></div>
+    <div class="logo-mark">T</div>
+    <div><div class="logo-text">Trader</div><div class="logo-sub">Share Trading Platform</div></div>
   </div>
+
+  <div class="portfolio-switcher">
+    <select class="port-select" id="portfolioSelect" onchange="switchPortfolio(this.value)"></select>
+    <button class="port-new-btn" onclick="openPortfolioModal()" title="New portfolio">+</button>
+  </div>
+
   <nav class="nav">
     <div class="nav-item active" onclick="showView('dashboard',this)">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -319,16 +230,14 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
       Watchlist
     </div>
-    <div class="nav-item" onclick="showView('plan',this)">
-      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Trading Plan
+
+    <div class="nav-section">
+      Trading Plans
+      <button class="nav-section-btn" onclick="openNewPlanModal()" title="New plan">+</button>
     </div>
-    <div class="nav-section">Reference</div>
-    <div class="nav-item" onclick="showView('theory',this)">
-      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      WW Theory Guide
-    </div>
+    <div id="planNavList"></div>
   </nav>
+
   <div class="sidebar-bottom">
     <button class="theme-btn" onclick="toggleTheme()">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="sideThemeIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -337,409 +246,234 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
   </div>
 </aside>
 
-<!-- ============================================================
-     MAIN CONTENT
-     ============================================================ -->
 <main class="main" style="padding-top:0">
-  <div style="height:16px" class="mobile-spacer"></div>
+<div style="height:16px" class="mobile-spacer"></div>
 
-  <!-- ========================================================
-       VIEW: DASHBOARD
-       ======================================================== -->
-  <div class="view active" id="view-dashboard">
-    <div class="flex justify-between items-center mb-4" style="margin-top:4px">
-      <div>
-        <div class="page-title" id="greetingTitle">Good morning, Trader 👋</div>
-        <div class="page-sub" id="fyLabel">FY25/26 · Wealth Within Institute</div>
-      </div>
+<!-- ── DASHBOARD ───────────────────────────────────────── -->
+<div class="view active" id="view-dashboard">
+  <div class="flex justify-between items-center mb-4" style="margin-top:4px">
+    <div>
+      <div class="page-title" id="greetingTitle">Good morning, Trader 👋</div>
+      <div class="page-sub" id="fyLabel" style="margin-bottom:0">FY25/26</div>
+    </div>
+    <button class="btn btn-primary" onclick="openTradeModal()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Trade
+    </button>
+  </div>
+  <div class="grid grid-4 mb-4" id="summaryCards"></div>
+  <div class="grid grid-2 mb-4">
+    <div class="card">
+      <div class="section-title">Portfolio Allocation</div>
+      <div class="chart-wrap"><canvas id="allocationChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Cumulative P&amp;L</div>
+      <div class="chart-wrap"><canvas id="pnlChart"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="flex justify-between items-center mb-4">
+      <div class="section-title" style="margin:0">Recent Trades</div>
+      <button class="btn btn-outline btn-sm" onclick="showView('journal',document.querySelector('[onclick*=journal]'))">View All</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Ticker</th><th>Dir</th><th>Qty</th><th>Price</th><th>Total</th><th>Capital %</th></tr></thead>
+        <tbody id="recentTradesBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── PORTFOLIO ──────────────────────────────────────── -->
+<div class="view" id="view-portfolio">
+  <div class="flex justify-between items-center">
+    <div><div class="page-title">Portfolio</div><div class="page-sub">Current holdings &amp; positions</div></div>
+    <div class="flex gap-2">
+      <button id="refreshPricesBtn" class="btn btn-outline" onclick="refreshAllPrices()">⟳ Live Prices</button>
       <button class="btn btn-primary" onclick="openTradeModal()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add Trade
       </button>
     </div>
-
-    <!-- Summary Cards -->
-    <div class="grid grid-4 mb-4" id="summaryCards">
-      <!-- populated by JS -->
+  </div>
+  <div class="grid grid-4 mb-4 mt-2" id="portfolioSummaryCards"></div>
+  <div id="capitalBarWrap" class="mb-4"></div>
+  <div class="card">
+    <div class="section-title">Holdings</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Ticker</th><th>Company</th><th>Qty</th><th>Avg Cost</th><th>Total Cost</th><th>Cur. Price</th><th>Mkt Value</th><th>P&amp;L $</th><th>P&amp;L %</th><th>Cap %</th><th>First Buy</th></tr></thead>
+        <tbody id="holdingsBody"></tbody>
+      </table>
     </div>
+  </div>
+</div>
 
-    <!-- Charts row -->
-    <div class="grid grid-2 mb-4">
-      <div class="card">
-        <div class="section-title">Portfolio P&amp;L Trend</div>
-        <div class="chart-wrap"><canvas id="pnlChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="section-title">Strategy Distribution</div>
-        <div class="chart-wrap"><canvas id="strategyChart"></canvas></div>
-      </div>
-    </div>
+<!-- ── TRADE JOURNAL ──────────────────────────────────── -->
+<div class="view" id="view-journal">
+  <div class="flex justify-between items-center">
+    <div><div class="page-title">Trade Journal</div><div class="page-sub">All trades with notes &amp; linked plans</div></div>
+    <button class="btn btn-primary" onclick="openTradeModal()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Record Trade
+    </button>
+  </div>
+  <div class="flex gap-3 mt-2 mb-4" style="flex-wrap:wrap">
+    <input type="text" id="journalSearch" placeholder="🔍  Search ticker, company, notes..." style="max-width:280px" oninput="renderJournal()">
+    <select id="journalDir" style="width:auto" onchange="renderJournal()">
+      <option value="">All Directions</option>
+      <option value="buy">Buy</option>
+      <option value="sell">Sell</option>
+    </select>
+    <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+  </div>
+  <div id="journalList"></div>
+</div>
 
-    <!-- Recent Trades -->
+<!-- ── PERFORMANCE ────────────────────────────────────── -->
+<div class="view" id="view-performance">
+  <div class="page-title">Performance</div>
+  <div class="page-sub">Win/Loss Ratio · Profit/Loss Ratio · Expectancy</div>
+  <div class="grid grid-4 mb-4" id="perfMetrics"></div>
+  <div class="grid grid-2 mb-4">
     <div class="card">
-      <div class="flex justify-between items-center mb-4">
-        <div class="section-title" style="margin:0">Recent Trades</div>
-        <button class="btn btn-outline btn-sm" onclick="showView('journal', document.querySelector('[onclick*=journal]'))">View All</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Date</th><th>Ticker</th><th>Dir</th><th>Qty</th><th>Price</th><th>Total</th><th>Strategy</th></tr></thead>
-          <tbody id="recentTradesBody"></tbody>
-        </table>
-      </div>
+      <div class="section-title">Win / Loss Breakdown</div>
+      <div class="chart-wrap"><canvas id="winLossChart"></canvas></div>
     </div>
-
-    <!-- WW Reference Quick Links -->
-    <div class="mt-6">
-      <div class="section-title">Wealth Within Module Reference</div>
-      <div class="grid grid-3">
-        <div class="card card-sm" style="cursor:pointer" onclick="showView('theory', document.querySelector('[onclick*=theory]'))">
-          <div style="font-size:10px;color:var(--green);font-weight:600;margin-bottom:4px">MODULE 3</div>
-          <div style="font-weight:600;margin-bottom:4px">Dow's Trend Theory</div>
-          <div style="font-size:12px;color:var(--text2)">Entry on confirmed higher highs/higher lows with rising volume</div>
-        </div>
-        <div class="card card-sm" style="cursor:pointer" onclick="showView('theory', document.querySelector('[onclick*=theory]'))">
-          <div style="font-size:10px;color:var(--green);font-weight:600;margin-bottom:4px">MODULE 3</div>
-          <div style="font-weight:600;margin-bottom:4px">Gann's Swing Theory</div>
-          <div style="font-size:12px;color:var(--text2)">Swing high/low identification for entry and stop placement</div>
-        </div>
-        <div class="card card-sm" style="cursor:pointer" onclick="showView('theory', document.querySelector('[onclick*=theory]'))">
-          <div style="font-size:10px;color:var(--green);font-weight:600;margin-bottom:4px">MODULE 1</div>
-          <div style="font-weight:600;margin-bottom:4px">Top-Down Analysis</div>
-          <div style="font-size:12px;color:var(--text2)">Market → Sector → Stock: trade leading stocks in leading sectors</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========================================================
-       VIEW: PORTFOLIO
-       ======================================================== -->
-  <div class="view" id="view-portfolio">
-    <div class="flex justify-between items-center">
-      <div><div class="page-title">Portfolio</div><div class="page-sub">Your current holdings &amp; positions</div></div>
-      <div class="flex gap-2">
-        <button id="refreshPricesBtn" class="btn btn-outline" onclick="refreshAllPrices()">⟳ Live Prices</button>
-        <button class="btn btn-primary" onclick="openTradeModal()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add Trade
-        </button>
-      </div>
-    </div>
-    <div class="grid grid-4 mb-4 mt-2" id="portfolioSummaryCards"></div>
     <div class="card">
-      <div class="section-title">Holdings</div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Ticker</th><th>Company</th><th>Qty</th><th>Avg Cost</th><th>Total Cost</th><th>Cur. Price</th><th>Mkt Value</th><th>P&amp;L $</th><th>P&amp;L %</th><th>First Buy</th><th></th></tr></thead>
-          <tbody id="holdingsBody"></tbody>
-        </table>
-      </div>
+      <div class="section-title">Monthly Realised P&amp;L</div>
+      <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
     </div>
   </div>
+</div>
 
-  <!-- ========================================================
-       VIEW: TRADE JOURNAL
-       ======================================================== -->
-  <div class="view" id="view-journal">
-    <div class="flex justify-between items-center">
-      <div><div class="page-title">Trade Journal</div><div class="page-sub">All trades with WW strategy notes</div></div>
-      <button class="btn btn-primary" onclick="openTradeModal()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Record Trade
-      </button>
-    </div>
-    <!-- Filters -->
-    <div class="flex gap-3 mt-2 mb-4" style="flex-wrap:wrap">
-      <input type="text" id="journalSearch" placeholder="🔍  Search ticker, company, notes..." style="max-width:300px" oninput="renderJournal()">
-      <select id="journalStrategy" style="width:auto" onchange="renderJournal()">
-        <option value="">All Strategies</option>
-        <option value="dows">Dow's Trend Theory</option>
-        <option value="ganns_swing">Gann's Swing Theory</option>
-        <option value="ganns_trend">Gann's Trend Theory</option>
-        <option value="ganns_counter">Gann's Counter Trend</option>
-        <option value="trendline">Trend Line Theory</option>
-        <option value="combination">Combination</option>
-      </select>
-      <select id="journalDir" style="width:auto" onchange="renderJournal()">
-        <option value="">All</option>
-        <option value="buy">Buy</option>
-        <option value="sell">Sell</option>
-      </select>
-      <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
-    </div>
-    <div id="journalList"></div>
+<!-- ── WATCHLIST ──────────────────────────────────────── -->
+<div class="view" id="view-watchlist">
+  <div class="flex justify-between items-center">
+    <div><div class="page-title">Watchlist</div><div class="page-sub">Stocks under analysis</div></div>
+    <button class="btn btn-primary" onclick="openWatchModal()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Stock
+    </button>
   </div>
+  <div class="grid grid-3 mt-2" id="watchlistGrid"></div>
+</div>
 
-  <!-- ========================================================
-       VIEW: PERFORMANCE
-       ======================================================== -->
-  <div class="view" id="view-performance">
-    <div class="page-title">Performance Dashboard</div>
-    <div class="page-sub">Win/Loss Ratio · Profit/Loss Ratio · Expectancy — Module 3 Section 3</div>
-
-    <div class="grid grid-4 mb-4" id="perfMetrics"></div>
-    <div class="grid grid-2 mb-4">
-      <div class="card">
-        <div class="section-title">Win / Loss Breakdown</div>
-        <div class="chart-wrap"><canvas id="winLossChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="section-title">Monthly Realised P&amp;L</div>
-        <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="info-box">
-        <strong>Module 3 – Section 3: Performance Metrics</strong><br>
-        <strong>Win/Loss Ratio</strong> = Winning trades ÷ Losing trades. A ratio &gt; 1 means more wins than losses.<br>
-        <strong>Profit/Loss Ratio</strong> = Average win ÷ Average loss. A ratio &gt; 1 means average wins are larger than average losses.<br>
-        <strong>Expectancy</strong> = (Win Rate × Avg Win) − (Loss Rate × Avg Loss). Positive expectancy confirms a profitable system over time.<br>
-        <strong>Optuma</strong>: Use Optuma charting software (Module 3 Appendix) to back-test and confirm these metrics on historical data.
-      </div>
-    </div>
-  </div>
-
-  <!-- ========================================================
-       VIEW: WATCHLIST
-       ======================================================== -->
-  <div class="view" id="view-watchlist">
-    <div class="flex justify-between items-center">
-      <div><div class="page-title">Watchlist</div><div class="page-sub">Top-Down Analysis — Market → Sector → Stock (Module 1)</div></div>
-      <button class="btn btn-primary" onclick="openWatchModal()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Stock
-      </button>
-    </div>
-    <div class="grid grid-3 mt-2" id="watchlistGrid"></div>
-  </div>
-
-  <!-- ========================================================
-       VIEW: TRADING PLAN
-       ======================================================== -->
-  <div class="view" id="view-plan">
-    <div class="flex justify-between items-center mb-4">
-      <div><div class="page-title">My Trading Plan</div><div class="page-sub">Module 1 – Section 2: Key Elements of a Successful Trading Plan</div></div>
-      <div class="flex gap-2">
-        <button class="btn btn-outline" onclick="exportPlanText()">⬇ Export Plan</button>
-        <button class="btn btn-primary" onclick="savePlan()">💾 Save Plan</button>
-      </div>
-    </div>
-
-    <div class="grid grid-2">
-      <!-- Left column -->
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="card">
-          <div class="form-section-title">1. Portfolio Overview <span class="badge badge-green" style="font-size:9px">Module 1</span></div>
-          <div class="form-row form-row-2">
-            <div class="form-group"><label class="form-label">Portfolio Type</label>
-              <select id="plan_portType"><option value="growth">Growth</option><option value="income">Income</option><option value="balanced">Balanced</option><option value="speculative">Speculative</option></select></div>
-            <div class="form-group"><label class="form-label">Time Frame</label>
-              <select id="plan_timeFrame"><option value="short">Short Term</option><option value="medium" selected>Medium Term</option><option value="long">Long Term</option></select></div>
-            <div class="form-group"><label class="form-label">Markets Traded</label><input id="plan_markets" value="ASX"></div>
-            <div class="form-group"><label class="form-label">Risk Level</label>
-              <select id="plan_risk"><option value="conservative">Conservative</option><option value="moderate" selected>Moderate</option><option value="aggressive">Aggressive</option></select></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="form-section-title">2. Money Management <span class="badge badge-green" style="font-size:9px">Module 1</span></div>
-          <div class="form-row form-row-2">
-            <div class="form-group"><label class="form-label">Max Risk per Trade (%)</label><input id="plan_maxRisk" type="number" step="0.1" value="2"></div>
-            <div class="form-group"><label class="form-label">Position Sizing Method</label><input id="plan_posMethod" placeholder="e.g. Fixed % of portfolio"></div>
-          </div>
-          <div class="form-group"><label class="form-label">Money Management Rules</label>
-            <textarea id="plan_mmRules" placeholder="e.g. Never risk > 2% on any trade. Max 10 open positions. Always use stop-loss orders..."></textarea></div>
-        </div>
-
-        <div class="card">
-          <div class="form-section-title">3. Psychology &amp; Discipline Rules</div>
-          <textarea id="plan_psychology" style="min-height:120px" placeholder="e.g. Never move a stop-loss against position&#10;Never trade without a stop-loss&#10;Do not add to losing positions&#10;Cut losses quickly without hesitation"></textarea>
-        </div>
-      </div>
-
-      <!-- Right column -->
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="card">
-          <div class="form-section-title">4. Top-Down Analysis Framework <span class="badge badge-green" style="font-size:9px">Module 1</span></div>
-          <textarea id="plan_topdown" style="min-height:130px" placeholder="1. MARKET ANALYSIS (ASX 200 overall trend)&#10;   - Is ASX 200 in uptrend, downtrend or sideways?&#10;&#10;2. SECTOR ANALYSIS&#10;   - Which sectors are outperforming?&#10;&#10;3. STOCK SELECTION&#10;   - Leading stocks in leading sectors&#10;   - Apply Dow/Gann criteria for entry"></textarea>
-        </div>
-
-        <div class="card">
-          <div class="form-section-title">5. Back-Testing Results <span class="badge badge-green" style="font-size:9px">Module 3 Section 3</span></div>
-          <div class="form-row form-row-2">
-            <div class="form-group"><label class="form-label">Back-test Win Rate (%)</label><input id="plan_btWin" type="number" step="0.1" placeholder="65"></div>
-            <div class="form-group"><label class="form-label">Profit/Loss Ratio</label><input id="plan_btPL" type="number" step="0.01" placeholder="2.5"></div>
-          </div>
-          <textarea id="plan_btNotes" style="min-height:90px" placeholder="Back-test period, strategy tested, markets, key observations..."></textarea>
-        </div>
-
-        <div class="card">
-          <div class="form-section-title">6. Additional Notes</div>
-          <textarea id="plan_extra" style="min-height:80px" placeholder="Optuma settings, specific rules, broker details..."></textarea>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========================================================
-       VIEW: WW THEORY GUIDE
-       ======================================================== -->
-  <div class="view" id="view-theory">
-    <div class="page-title">WW Theory Guide</div>
-    <div class="page-sub">Quick reference for Diploma of Share Trading — Modules 1–3</div>
-
-    <div style="display:flex;flex-direction:column;gap:16px">
-      <div class="card">
-        <div class="flex items-center gap-2 mb-2"><span class="badge badge-green">MODULE 3</span><strong>Dow's Trend Theory</strong></div>
-        <p style="color:var(--text2);font-size:13px;margin-bottom:10px">An uptrend is defined by a series of higher highs (HH) and higher lows (HL). A downtrend by lower highs (LH) and lower lows (LL).</p>
-        <div class="info-box">
-          <strong>Entry Rules:</strong> Enter a long on confirmation of a new HH after a HL has been formed, ideally with increasing volume.<br>
-          <strong>Exit Rules:</strong> Exit when price fails to make a new HH, or when it closes below the last HL (trend broken).<br>
-          <strong>Volume Confirmation:</strong> Volume should increase on up-waves and decrease on down-waves (corrections) in an uptrend.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="flex items-center gap-2 mb-2"><span class="badge badge-green">MODULE 3</span><strong>Gann's Swing Theory</strong></div>
-        <p style="color:var(--text2);font-size:13px;margin-bottom:10px">Identifies swing highs and swing lows to determine trend direction and place stops.</p>
-        <div class="info-box">
-          <strong>Swing High:</strong> A bar whose high is higher than the bars on either side.<br>
-          <strong>Swing Low:</strong> A bar whose low is lower than the bars on either side.<br>
-          <strong>Entry:</strong> Enter long on confirmation of a swing low forming in an uptrend.<br>
-          <strong>Stop Placement:</strong> Place stop-loss just below the last confirmed swing low.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="flex items-center gap-2 mb-2"><span class="badge badge-green">MODULE 3</span><strong>Gann's Trend Theory</strong></div>
-        <div class="info-box">
-          Trade in the direction of the main trend using a combination of swing highs/lows and Gann angles. The 1×1 angle (45°) represents a balanced market. Price above = bullish; below = bearish.<br>
-          <strong>Entry:</strong> Buy when price bounces from a Gann angle support level in an uptrend with volume confirmation.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="flex items-center gap-2 mb-2"><span class="badge badge-amber">MODULE 3</span><strong>Gann's Counter Trend Theory</strong></div>
-        <div class="info-box">
-          Higher-risk strategy trading against the main trend at key reversal zones. Requires <strong>strong volume confirmation</strong> and strict risk management.<br>
-          <strong>Entry:</strong> Look for key reversal bars (outside days, key reversals) at major support/resistance in oversold/overbought zones.<br>
-          <strong>Risk:</strong> Use tight stops. Counter-trend trades are lower probability — only take with exceptional setups.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="flex items-center gap-2 mb-2"><span class="badge badge-green">MODULE 3</span><strong>Trend Line Theory</strong></div>
-        <div class="info-box">
-          <strong>Uptrend line:</strong> Connect at least 2 swing lows. The more touches, the stronger the line.<br>
-          <strong>Downtrend line:</strong> Connect at least 2 swing highs.<br>
-          <strong>Entry:</strong> Buy on a bounce from an uptrend line support, ideally with a bullish bar pattern and volume spike.<br>
-          <strong>Break:</strong> A close through the trend line is a warning signal. Confirmed break = exit or reverse.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="flex items-center gap-2 mb-2"><span class="badge badge-blue" style="background:rgba(59,130,246,.12);color:var(--blue)">MODULE 2</span><strong>Volume &amp; Bar Analysis</strong></div>
-        <div class="info-box">
-          <strong>Volume Principles:</strong> Volume should confirm the trend. High volume on rallies, low volume on corrections = healthy uptrend.<br>
-          <strong>Volume Spike:</strong> Unusual volume (3×+ average) on a breakout confirms conviction.<br>
-          <strong>Bar Patterns:</strong> Outside day (range exceeds prior bar), key reversal (new high then close below prior close), narrow range bars (NRB — potential explosive move ahead).<br>
-          <strong>Bar Colour:</strong> Bullish = close above open (green/white). Bearish = close below open (red/black). Closing position within bar range is important.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="flex items-center gap-2 mb-2"><span class="badge badge-blue" style="background:rgba(59,130,246,.12);color:var(--blue)">MODULE 1</span><strong>Top-Down Analysis Framework</strong></div>
-        <div class="info-box">
-          <strong>Step 1 — Market Analysis:</strong> Is the broader market (ASX 200) in an uptrend, downtrend, or sideways? Only trade longs in an uptrending market.<br>
-          <strong>Step 2 — Sector Analysis:</strong> Identify the leading sectors using relative strength. Focus on sectors outperforming the index.<br>
-          <strong>Step 3 — Stock Selection:</strong> Within the leading sector, identify the leading stocks. Apply Dow/Gann entry criteria to the best setups.<br>
-          <strong>Note:</strong> Never fight the market trend. A great stock setup in a downtrending market has significantly lower probability.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="flex items-center gap-2 mb-2"><span class="badge badge-amber">MODULE 3 – SECTION 3</span><strong>Performance Metrics</strong></div>
-        <div class="info-box">
-          <strong>Win Rate</strong> = Winning trades ÷ Total closed trades × 100<br>
-          <strong>Win/Loss Ratio</strong> = Number of winning trades ÷ Number of losing trades<br>
-          <strong>Profit/Loss Ratio</strong> = Average profit per winning trade ÷ Average loss per losing trade<br>
-          <strong>Expectancy</strong> = (Win Rate × Avg Win) − (Loss Rate × Avg Loss) — must be positive for a profitable system<br>
-          <strong>Example:</strong> 55% win rate, 2:1 P/L ratio → Expectancy = (0.55 × $2) − (0.45 × $1) = $0.65 per $1 risked
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- ── PLAN DETAIL ────────────────────────────────────── -->
+<div class="view" id="view-plan">
+  <div id="planViewContent"></div>
+</div>
 
 </main>
 </div>
 
-<!-- ============================================================
-     MODAL: ADD TRADE
-     ============================================================ -->
+<!-- ══ MODAL: NEW PORTFOLIO ══════════════════════════════════ -->
+<div class="modal-bg" id="portfolioModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title">New Portfolio</div>
+      <button class="btn-icon" onclick="closeModal('portfolioModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Portfolio Name *</label>
+        <input id="pm_name" placeholder="e.g. ASX Growth Portfolio">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Total Available Capital *</label>
+        <input id="pm_capital" type="number" step="1000" min="0" placeholder="100000">
+        <span class="form-hint">Total capital allocated to this portfolio. Used to calculate trade size as % of capital.</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('portfolioModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePortfolio()">Create Portfolio</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: ADD TRADE ══════════════════════════════════════ -->
 <div class="modal-bg" id="tradeModal">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title">Record Trade</div>
-      <button class="btn-icon" onclick="closeModal('tradeModal')">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <button class="btn-icon" onclick="closeModal('tradeModal')">✕</button>
     </div>
     <div class="modal-body">
+      <div class="warning-banner" id="capitalWarning">⚠️ This trade exceeds 20% of total portfolio capital</div>
+
       <div class="form-section-title">Trade Details</div>
       <div class="form-row form-row-2">
-        <div class="form-group"><label class="form-label">Ticker * <span class="form-hint">ASX search</span></label>
+        <div class="form-group">
+          <label class="form-label">Ticker * <span class="form-hint">— type to search ASX</span></label>
           <div class="ac-wrap">
-            <input id="t_ticker" placeholder="e.g. BHP — type to search ASX" autocomplete="off" oninput="this.value=this.value.toUpperCase();onTickerInput(this.value,'t_ticker','t_company')">
+            <input id="t_ticker" placeholder="e.g. BHP" autocomplete="off" oninput="this.value=this.value.toUpperCase();onTickerInput(this.value,'t_ticker','t_company')">
             <div class="ac-list" id="t_ticker_list"></div>
           </div>
         </div>
-        <div class="form-group"><label class="form-label">Company Name *</label><input id="t_company" placeholder="Auto-filled from search"></div>
-        <div class="form-group"><label class="form-label">Direction *</label>
-          <select id="t_dir"><option value="buy">Buy</option><option value="sell">Sell</option></select></div>
-        <div class="form-group"><label class="form-label">Trade Date *</label><input id="t_date" type="date"></div>
-        <div class="form-group"><label class="form-label">Quantity *</label><input id="t_qty" type="number" step="1" min="1" placeholder="1000" oninput="calcTotal()"></div>
-        <div class="form-group"><label class="form-label">Price per Share *</label><input id="t_price" type="number" step="0.001" min="0.001" placeholder="12.50" oninput="calcTotal()"></div>
-        <div class="form-group"><label class="form-label">Broker Fee</label><input id="t_fee" type="number" step="0.01" min="0" placeholder="19.95" oninput="calcTotal()"></div>
-        <div class="form-group"><label class="form-label">Total</label>
-          <div id="t_total" style="padding:9px 12px;background:var(--green-bg);border:1px solid rgba(16,185,129,.3);border-radius:8px;color:var(--green);font-weight:700">$0.00</div></div>
+        <div class="form-group">
+          <label class="form-label">Company Name *</label>
+          <input id="t_company" placeholder="Auto-filled from search">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Direction *</label>
+          <select id="t_dir" onchange="calcTotal()"><option value="buy">Buy</option><option value="sell">Sell</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Trade Date *</label>
+          <input id="t_date" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Quantity *</label>
+          <input id="t_qty" type="number" step="1" min="1" placeholder="1000" oninput="calcTotal()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price per Share *</label>
+          <input id="t_price" type="number" step="0.001" min="0.001" placeholder="12.50" oninput="calcTotal()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Broker Fee</label>
+          <input id="t_fee" type="number" step="0.01" min="0" placeholder="19.95" oninput="calcTotal()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Total &amp; Capital %</label>
+          <div id="t_total" style="padding:9px 12px;background:var(--green-bg);border:1px solid rgba(16,185,129,.3);border-radius:8px;color:var(--green);font-weight:700;font-size:13px">$0.00</div>
+        </div>
       </div>
 
-      <div class="form-section-title mt-4">Wealth Within Strategy <span class="badge badge-green" style="font-size:9px">Module 3</span></div>
+      <div class="form-section-title mt-4">Entry Analysis</div>
       <div class="form-row form-row-2">
-        <div class="form-group"><label class="form-label">Strategy *</label>
-          <select id="t_strategy">
-            <option value="dows">Dow's Trend Theory</option>
-            <option value="ganns_swing">Gann's Swing Theory</option>
-            <option value="ganns_trend">Gann's Trend Theory</option>
-            <option value="ganns_counter">Gann's Counter Trend Theory</option>
-            <option value="trendline">Trend Line Theory</option>
-            <option value="combination">Combination</option>
-          </select></div>
-        <div class="form-group"><label class="form-label">Entry Method</label>
-          <select id="t_entry">
-            <option value="">— Select —</option>
-            <option value="swing_low">Swing Low Confirmed</option>
-            <option value="swing_high">Swing High Confirmed</option>
-            <option value="tl_bounce">Trend Line Support Bounce</option>
-            <option value="tl_break">Trend Line Resistance Break</option>
-            <option value="counter_vol">Counter-Trend Reversal (Volume Spike)</option>
-            <option value="gann_angle">Gann Angle Support</option>
-            <option value="double_bottom">Double Bottom</option>
-            <option value="double_top">Double Top</option>
-            <option value="other">Other</option>
-          </select></div>
-        <div class="form-group"><label class="form-label">Risk % per Trade <span class="form-hint">(Module 1 MM Rule)</span></label><input id="t_risk" type="number" step="0.1" min="0" max="100" placeholder="2.0"></div>
-        <div class="form-group"><label class="form-label">Stop-Loss Level</label><input id="t_sl" type="number" step="0.001" min="0" placeholder="e.g. 11.85"></div>
+        <div class="form-group">
+          <label class="form-label">Stop-Loss Level</label>
+          <input id="t_sl" type="number" step="0.001" min="0" placeholder="e.g. 11.85" oninput="calcTotal()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Risk % of Capital <span class="form-hint">(auto-calculated)</span></label>
+          <input id="t_risk" type="number" step="0.01" readonly style="background:var(--bg3);cursor:default" placeholder="—">
+        </div>
       </div>
-      <div class="form-group"><label class="form-label">Stop-Loss Reason</label><input id="t_slreason" placeholder="e.g. Below swing low of 12 Nov at $11.85"></div>
-      <div class="form-group"><label class="form-label">Volume Analysis Notes <span class="form-hint">(Module 2)</span></label>
-        <textarea id="t_vol" placeholder="e.g. Volume spiked 3× on breakout — confirms buyer conviction..."></textarea></div>
-      <div class="form-group"><label class="form-label">Bar Analysis Notes <span class="form-hint">(Module 2)</span></label>
-        <textarea id="t_bar" placeholder="e.g. Strong bullish outside day, close in upper 25% of bar range..."></textarea></div>
-      <div class="form-group"><label class="form-label">Trade Journal / Comments</label>
-        <textarea id="t_comments" placeholder="e.g. BHP confirmed uptrend per Dow Theory. Entered on swing low confirmation at 3× volume. Stop $43.20 (last swing low). Target $52.00 (R:R = 1:3.5)..." style="min-height:80px"></textarea></div>
+      <div class="form-group">
+        <label class="form-label">Stop-Loss Reason</label>
+        <input id="t_slreason" placeholder="e.g. Below swing low of 12 Nov at $11.85">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Volume Analysis Notes</label>
+        <textarea id="t_vol" placeholder="e.g. Volume spiked 3× on breakout — confirms buyer conviction..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bar Analysis Notes</label>
+        <textarea id="t_bar" placeholder="e.g. Strong bullish outside day, close in upper 25% of bar range..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Link to Trading Plan</label>
+        <select id="t_plan"><option value="">— No plan linked —</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Journal Comments</label>
+        <textarea id="t_comments" placeholder="Entry rationale, target, R:R, observations..." style="min-height:80px"></textarea>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('tradeModal')">Cancel</button>
@@ -748,55 +482,40 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
   </div>
 </div>
 
-<!-- ============================================================
-     MODAL: ADD WATCHLIST
-     ============================================================ -->
+<!-- ══ MODAL: ADD TO WATCHLIST ═══════════════════════════════ -->
 <div class="modal-bg" id="watchModal">
-  <div class="modal">
+  <div class="modal" style="max-width:440px">
     <div class="modal-header">
       <div class="modal-title">Add to Watchlist</div>
-      <button class="btn-icon" onclick="closeModal('watchModal')">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <button class="btn-icon" onclick="closeModal('watchModal')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-row form-row-2">
-        <div class="form-group"><label class="form-label">Ticker * <span class="form-hint">ASX search</span></label>
-          <div class="ac-wrap">
-            <input id="w_ticker" placeholder="BHP — type to search ASX" autocomplete="off" oninput="this.value=this.value.toUpperCase();onTickerInput(this.value,'w_ticker','w_company')">
-            <div class="ac-list" id="w_ticker_list"></div>
-          </div>
+      <div class="form-group">
+        <label class="form-label">ASX Ticker * <span class="form-hint">— stock details auto-fetched</span></label>
+        <div class="ac-wrap">
+          <input id="w_ticker" placeholder="e.g. BHP — type to search" autocomplete="off"
+            oninput="this.value=this.value.toUpperCase();onTickerInput(this.value,'w_ticker','w_company_h')">
+          <div class="ac-list" id="w_ticker_list"></div>
         </div>
-        <div class="form-group"><label class="form-label">Company Name *</label><input id="w_company" placeholder="Auto-filled from search"></div>
-        <div class="form-group"><label class="form-label">Sector</label><input id="w_sector" placeholder="e.g. Materials"></div>
-        <div class="form-group"><label class="form-label">Priority</label>
-          <select id="w_priority"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+        <input type="hidden" id="w_company_h">
       </div>
-      <div class="form-section-title mt-2">Fundamental Analysis</div>
-      <div class="form-row form-row-3">
-        <div class="form-group"><label class="form-label">P/E Ratio</label><input id="w_pe" type="number" step="0.1" placeholder="18.5"></div>
-        <div class="form-group"><label class="form-label">Div Yield %</label><input id="w_div" type="number" step="0.01" placeholder="3.5"></div>
-        <div class="form-group"><label class="form-label">Market Cap</label><input id="w_cap" placeholder="e.g. $50B"></div>
+      <div class="fetched-info" id="w_fetchedInfo">
+        <div class="fetched-row"><span class="fetched-label">Company</span><span class="fetched-val" id="wi_name">—</span></div>
+        <div class="fetched-row"><span class="fetched-label">Current Price</span><span class="fetched-val" id="wi_price">—</span></div>
+        <div class="fetched-row"><span class="fetched-label">Industry</span><span class="fetched-val" id="wi_industry">—</span></div>
       </div>
-      <div class="form-group"><label class="form-label">Fundamental Notes</label><textarea id="w_fundNotes" placeholder="Strong earnings growth, low debt..."></textarea></div>
-      <div class="form-section-title">Technical Analysis</div>
-      <div class="form-row form-row-3">
-        <div class="form-group"><label class="form-label">Trend Direction</label>
-          <select id="w_trend"><option value="">—</option><option value="uptrend">Uptrend</option><option value="downtrend">Downtrend</option><option value="sideways">Sideways</option></select></div>
-        <div class="form-group"><label class="form-label">Support Level</label><input id="w_support" type="number" step="0.01" placeholder="42.50"></div>
-        <div class="form-group"><label class="form-label">Resistance Level</label><input id="w_resist" type="number" step="0.01" placeholder="48.00"></div>
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select id="w_priority">
+          <option value="high">High</option>
+          <option value="medium" selected>Medium</option>
+          <option value="low">Low</option>
+        </select>
       </div>
-      <div class="form-group"><label class="form-label">Strategy Alignment</label>
-        <select id="w_strategy">
-          <option value="">— Select —</option>
-          <option value="dows">Dow's Trend Theory</option>
-          <option value="ganns_swing">Gann's Swing Theory</option>
-          <option value="ganns_trend">Gann's Trend Theory</option>
-          <option value="ganns_counter">Gann's Counter Trend Theory</option>
-          <option value="trendline">Trend Line Theory</option>
-          <option value="combination">Combination</option>
-        </select></div>
-      <div class="form-group"><label class="form-label">Technical Notes</label><textarea id="w_techNotes" placeholder="In confirmed uptrend, volume rising, approaching trend line support..."></textarea></div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea id="w_notes" placeholder="Analysis notes, entry criteria, why this stock is on your radar..." style="min-height:100px"></textarea>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('watchModal')">Cancel</button>
@@ -805,56 +524,108 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
   </div>
 </div>
 
+<!-- ══ MODAL: NEW / EDIT PLAN ════════════════════════════════ -->
+<div class="modal-bg" id="planModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="planModalTitle">New Trading Plan</div>
+      <button class="btn-icon" onclick="closeModal('planModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Stock Ticker *</label>
+          <div class="ac-wrap">
+            <input id="pl_ticker" placeholder="e.g. BHP" autocomplete="off"
+              oninput="this.value=this.value.toUpperCase();onTickerInput(this.value,'pl_ticker','pl_company')">
+            <div class="ac-list" id="pl_ticker_list"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Company Name</label>
+          <input id="pl_company" placeholder="Auto-filled">
+        </div>
+      </div>
+      <div class="form-section-title">Plan Details</div>
+      <div class="form-group">
+        <label class="form-label">Entry Criteria</label>
+        <textarea id="pl_entry" placeholder="What conditions must be met before entering? e.g. confirmed uptrend, swing low formed, volume confirmation..." style="min-height:90px"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Exit Rules</label>
+        <textarea id="pl_exit" placeholder="When will you exit? e.g. stop-loss below swing low, trend broken, target hit..." style="min-height:80px"></textarea>
+      </div>
+      <div class="form-row form-row-2">
+        <div class="form-group"><label class="form-label">Target Price</label><input id="pl_target" type="number" step="0.01" placeholder="e.g. 52.00"></div>
+        <div class="form-group"><label class="form-label">Stop-Loss Price</label><input id="pl_stop" type="number" step="0.01" placeholder="e.g. 41.50"></div>
+        <div class="form-group"><label class="form-label">Max Position Size (%)</label><input id="pl_maxpos" type="number" step="0.5" placeholder="e.g. 10"></div>
+        <div class="form-group"><label class="form-label">Max Risk per Trade (%)</label><input id="pl_risk" type="number" step="0.1" placeholder="e.g. 2"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Risk Management Rules</label>
+        <textarea id="pl_riskrules" placeholder="e.g. Never move stop against the position, exit if trend is broken, max 2% capital at risk..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Additional Notes</label>
+        <textarea id="pl_notes" placeholder="Catalyst, sector context, any other observations..."></textarea>
+      </div>
+      <input type="hidden" id="pl_editId">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('planModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePlan()">Save Plan</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ============================================================
-// DATA STORE (localStorage)
+// DATA STORE
 // ============================================================
 const DB = {
-  get trades() { return JSON.parse(localStorage.getItem('ww_trades') || '[]') },
-  set trades(v) { localStorage.setItem('ww_trades', JSON.stringify(v)) },
-  get watchlist() { return JSON.parse(localStorage.getItem('ww_watchlist') || '[]') },
-  set watchlist(v) { localStorage.setItem('ww_watchlist', JSON.stringify(v)) },
-  get plan() { return JSON.parse(localStorage.getItem('ww_plan') || '{}') },
-  set plan(v) { localStorage.setItem('ww_plan', JSON.stringify(v)) },
+  get portfolios() { return JSON.parse(localStorage.getItem('tr_portfolios') || '[]') },
+  set portfolios(v) { localStorage.setItem('tr_portfolios', JSON.stringify(v)) },
+  get activeId() { return localStorage.getItem('tr_active') || '' },
+  set activeId(v) { localStorage.setItem('tr_active', v) },
+  get activePortfolio() { return this.portfolios.find(p => p.id === this.activeId) || null },
+  getTrades(pid) { return JSON.parse(localStorage.getItem('tr_trades_' + pid) || '[]') },
+  setTrades(pid, v) { localStorage.setItem('tr_trades_' + pid, JSON.stringify(v)) },
+  get trades() { return this.getTrades(this.activeId) },
+  set trades(v) { this.setTrades(this.activeId, v) },
+  get watchlist() { return JSON.parse(localStorage.getItem('tr_watchlist') || '[]') },
+  set watchlist(v) { localStorage.setItem('tr_watchlist', JSON.stringify(v)) },
+  get plans() { return JSON.parse(localStorage.getItem('tr_plans') || '[]') },
+  set plans(v) { localStorage.setItem('tr_plans', JSON.stringify(v)) },
 }
 
 // ============================================================
-// SEED DATA (only if empty)
+// SEED DATA
 // ============================================================
 function seedData() {
-  if (DB.trades.length > 0) return
-  const seed = [
-    { id: uid(), ticker: 'BHP', company: 'BHP Group Limited', dir: 'buy', date: '2025-08-15', qty: 500, price: 43.20, fee: 19.95, strategy: 'dows', entry: 'swing_low', risk: 2, sl: 41.50, comments: "Confirmed uptrend per Dow Theory. Swing low formed on high volume. Entry at open after confirmation. Stop at last swing low $41.50.", volume: "Volume 2.8× average on entry day — strong buyer conviction.", bar: "Bullish engulfing candle, close in top 20% of bar range." },
-    { id: uid(), ticker: 'CBA', company: 'Commonwealth Bank', dir: 'buy', date: '2025-09-03', qty: 100, price: 148.50, fee: 19.95, strategy: 'ganns_swing', entry: 'tl_bounce', risk: 1.5, sl: 143.00, comments: "Bounce from uptrend line, Gann swing confirmed. Good R:R.", volume: "Volume dry-up on pullback then spike on bounce = classic.", bar: "Narrow range bar followed by strong bullish outside day." },
-    { id: uid(), ticker: 'BHP', company: 'BHP Group Limited', dir: 'sell', date: '2025-10-22', qty: 500, price: 48.60, fee: 19.95, strategy: 'dows', entry: '', risk: 0, sl: 0, comments: "Target hit. Trend line broken on high volume. Profit taken per exit rules. P&L = $2,700." },
-    { id: uid(), ticker: 'RIO', company: 'Rio Tinto Limited', dir: 'buy', date: '2025-10-28', qty: 150, price: 118.00, fee: 19.95, strategy: 'trendline', entry: 'tl_bounce', risk: 2, sl: 113.50, comments: "Strong uptrend line bounce with volume confirmation. Materials sector leader.", volume: "Volume 1.9× average. Not as strong as preferred but trend intact.", bar: "Outside day — bullish engulfing at trend line." },
-    { id: uid(), ticker: 'WBC', company: 'Westpac Banking', dir: 'buy', date: '2025-11-10', qty: 200, price: 32.80, fee: 19.95, strategy: 'ganns_swing', entry: 'swing_low', risk: 1.8, sl: 31.20, comments: "Banks sector continuing uptrend. Swing low confirmed, good R:R at 1:2.5.", volume: "Average volume on pullback, good sign.", bar: "" },
-  ]
-  DB.trades = seed
-
+  if (DB.portfolios.length > 0) return
+  const pid = uid()
+  DB.portfolios = [{ id: pid, name: 'ASX Portfolio', capital: 100000, createdAt: '2025-07-01' }]
+  DB.activeId = pid
+  DB.setTrades(pid, [
+    { id: uid(), ticker:'BHP', company:'BHP Group Limited', dir:'buy', date:'2025-08-15', qty:500, price:43.20, fee:19.95, sl:41.50, risk:1.8, slreason:'Below last swing low', vol:'Volume 2.8× average on entry day.', bar:'Bullish engulfing, close in top 20% of range.', planId:'', comments:'Confirmed uptrend. Entry at swing low confirmation.' },
+    { id: uid(), ticker:'CBA', company:'Commonwealth Bank', dir:'buy', date:'2025-09-03', qty:100, price:148.50, fee:19.95, sl:143.00, risk:1.2, slreason:'', vol:'Volume dry-up on pullback, spike on bounce.', bar:'NRB followed by strong bullish outside day.', planId:'', comments:'Trend line bounce. Good R:R.' },
+    { id: uid(), ticker:'BHP', company:'BHP Group Limited', dir:'sell', date:'2025-10-22', qty:500, price:48.60, fee:19.95, sl:0, risk:0, slreason:'', vol:'', bar:'', planId:'', comments:'Target hit. Trend line broken on high volume.' },
+  ])
   DB.watchlist = [
-    { id: uid(), ticker: 'ANZ', company: 'ANZ Banking Group', sector: 'Financials', priority: 'high', trend: 'uptrend', support: 28.50, resist: 32.00, strategy: 'dows', techNotes: 'Approaching trend line support. Watch for swing low formation.', fundNotes: 'Strong dividend yield 5.2%, stable earnings.', pe: 14.2, div: 5.2, cap: '$70B' },
-    { id: uid(), ticker: 'CSL', company: 'CSL Limited', sector: 'Healthcare', priority: 'medium', trend: 'sideways', support: 280.00, resist: 310.00, strategy: 'ganns_swing', techNotes: 'Consolidating. Waiting for breakout above $310 resistance with volume.', fundNotes: '', pe: 42, div: 1.1, cap: '$145B' },
-    { id: uid(), ticker: 'FMG', company: 'Fortescue Metals', sector: 'Materials', priority: 'low', trend: 'downtrend', support: 17.50, resist: 22.00, strategy: 'ganns_counter', techNotes: 'Downtrend in place. Watching for counter-trend reversal at $17.50 support.', fundNotes: '', pe: 8, div: 8.5, cap: '$55B' },
+    { id: uid(), ticker:'ANZ', company:'ANZ Banking Group', industry:'Banks', priority:'high', notes:'Approaching trend line support. Watch for swing low formation. Strong dividend yield ~5%.', addedAt:'2025-10-01' },
+    { id: uid(), ticker:'CSL', company:'CSL Limited', industry:'Biotechnology', priority:'medium', notes:'Consolidating. Waiting for breakout above $310 resistance with volume confirmation.', addedAt:'2025-10-05' },
   ]
 }
 
 // ============================================================
-// UTILITY FUNCTIONS
+// UTILITIES
 // ============================================================
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2) }
-function fmt(n, d=2) { return new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(n) }
-function fmtN(n,d=2) { return Number(n).toFixed(d) }
-function fmtDate(s) { if(!s) return '—'; try { return new Intl.DateTimeFormat('en-AU',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(s+'T00:00:00')) } catch{return s} }
-function pct(n) { return (n>=0?'+':'')+n.toFixed(2)+'%' }
-function stratLabel(s) {
-  const m={dows:"Dow's Trend",ganns_swing:"Gann's Swing",ganns_trend:"Gann's Trend",ganns_counter:"Gann's Counter Trend",trendline:"Trend Line",combination:"Combination"}
-  return m[s]||s||'—'
-}
-function entryLabel(s) {
-  const m={swing_low:'Swing Low Confirmed',swing_high:'Swing High Confirmed',tl_bounce:'TL Support Bounce',tl_break:'TL Resistance Break',counter_vol:'Counter-Trend Vol Spike',gann_angle:'Gann Angle Support',double_bottom:'Double Bottom',double_top:'Double Top',other:'Other'}
-  return m[s]||''
-}
+function fmt(n, d=2) { return new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',minimumFractionDigits:d,maximumFractionDigits:d}).format(n||0) }
+function fmtN(n,d=2) { return Number(n||0).toFixed(d) }
+function fmtDate(s) { if(!s) return '—'; try{return new Intl.DateTimeFormat('en-AU',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(s+'T00:00:00'))}catch{return s} }
+function pct(n) { return (n>=0?'+':'')+Number(n).toFixed(2)+'%' }
+function getCapital() { return DB.activePortfolio?.capital || 0 }
 
 function toast(msg, isError=false) {
   const t = document.getElementById('toast')
@@ -864,184 +635,188 @@ function toast(msg, isError=false) {
 }
 
 // ============================================================
+// PORTFOLIO MANAGEMENT
+// ============================================================
+function renderPortfolioSelect() {
+  const sel = document.getElementById('portfolioSelect')
+  const list = DB.portfolios
+  sel.innerHTML = list.length
+    ? list.map(p => `<option value="${p.id}"${p.id===DB.activeId?' selected':''}>${p.name}</option>`).join('')
+    : '<option value="">No portfolios</option>'
+}
+
+function switchPortfolio(pid) {
+  DB.activeId = pid
+  Object.keys(priceCache).forEach(k => delete priceCache[k])
+  renderAll()
+}
+
+function openPortfolioModal() {
+  document.getElementById('pm_name').value = ''
+  document.getElementById('pm_capital').value = ''
+  document.getElementById('portfolioModal').classList.add('open')
+}
+
+function savePortfolio() {
+  const name = document.getElementById('pm_name').value.trim()
+  const capital = parseFloat(document.getElementById('pm_capital').value)
+  if (!name || !capital) { toast('Name and capital are required', true); return }
+  const p = { id: uid(), name, capital, createdAt: new Date().toISOString().split('T')[0] }
+  DB.portfolios = [...DB.portfolios, p]
+  DB.activeId = p.id
+  closeModal('portfolioModal')
+  renderPortfolioSelect()
+  renderAll()
+  toast(`"${name}" created ✓`)
+}
+
+// ============================================================
 // HOLDINGS COMPUTATION
 // ============================================================
 function computeHoldings() {
   const trades = DB.trades
   const map = {}
-  // Process buys
   trades.filter(t=>t.dir==='buy').sort((a,b)=>a.date.localeCompare(b.date)).forEach(t => {
     if (!map[t.ticker]) map[t.ticker] = { ticker:t.ticker, company:t.company, qty:0, avgCost:0, totalCost:0, firstDate:t.date }
     const h = map[t.ticker]
-    const newQty = h.qty + t.qty
-    h.avgCost = (h.qty * h.avgCost + t.qty * t.price) / newQty
-    h.qty = newQty
+    const nq = h.qty + t.qty
+    h.avgCost = (h.qty * h.avgCost + t.qty * t.price) / nq
+    h.qty = nq
     h.totalCost += t.qty * t.price + (t.fee||0)
   })
-  // Process sells
   trades.filter(t=>t.dir==='sell').sort((a,b)=>a.date.localeCompare(b.date)).forEach(t => {
     if (map[t.ticker]) {
       map[t.ticker].qty = Math.max(0, map[t.ticker].qty - t.qty)
-      if (map[t.ticker].qty === 0) {
-        map[t.ticker].totalCost = 0
-      } else {
-        map[t.ticker].totalCost = map[t.ticker].avgCost * map[t.ticker].qty
-      }
+      map[t.ticker].totalCost = map[t.ticker].qty === 0 ? 0 : map[t.ticker].avgCost * map[t.ticker].qty
     }
   })
   return Object.values(map).filter(h => h.qty > 0)
 }
 
 // ============================================================
-// PERFORMANCE STATS (Module 3 Section 3)
+// PERFORMANCE STATS
 // ============================================================
 function computeStats() {
   const trades = DB.trades
-  // Simple realised P&L: match buys to sells per ticker (FIFO)
-  const buyQueues = {}
-  const realisedPnls = []
-
+  const queues = {}
+  const closed = []
   trades.filter(t=>t.dir==='buy').sort((a,b)=>a.date.localeCompare(b.date)).forEach(t => {
-    if (!buyQueues[t.ticker]) buyQueues[t.ticker] = []
-    buyQueues[t.ticker].push({ qty: t.qty, price: t.price, fee: t.fee||0 })
+    if (!queues[t.ticker]) queues[t.ticker] = []
+    queues[t.ticker].push({ qty:t.qty, price:t.price, fee:t.fee||0 })
   })
-
   trades.filter(t=>t.dir==='sell').sort((a,b)=>a.date.localeCompare(b.date)).forEach(sell => {
-    const queue = buyQueues[sell.ticker]
-    if (!queue||!queue.length) return
-    let remaining = sell.qty
-    const revenue = sell.qty * sell.price - (sell.fee||0)
+    const q = queues[sell.ticker]
+    if (!q||!q.length) return
+    let rem = sell.qty
+    const rev = sell.qty * sell.price - (sell.fee||0)
     let cost = 0
-    while (remaining > 0 && queue.length > 0) {
-      const buy = queue[0]
-      const matched = Math.min(remaining, buy.qty)
-      cost += matched * buy.price + (matched/buy.qty) * buy.fee
-      buy.qty -= matched
-      remaining -= matched
-      if (buy.qty <= 0) queue.shift()
+    while (rem > 0 && q.length > 0) {
+      const b = q[0], m = Math.min(rem, b.qty)
+      cost += m * b.price + (m/b.qty) * b.fee
+      b.qty -= m; rem -= m
+      if (b.qty <= 0) q.shift()
     }
-    realisedPnls.push({ pnl: revenue - cost, date: sell.date })
+    closed.push({ pnl: rev - cost, date: sell.date })
   })
-
-  // Australian FY start: 1 July
   const now = new Date()
   const fyYear = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1
   const fyStart = new Date(fyYear, 6, 1)
-
-  const wins = realisedPnls.filter(p=>p.pnl>0)
-  const losses = realisedPnls.filter(p=>p.pnl<0)
-  const totalWin = wins.reduce((s,p)=>s+p.pnl,0)
-  const totalLoss = losses.reduce((s,p)=>s+Math.abs(p.pnl),0)
-  const avgWin = wins.length > 0 ? totalWin/wins.length : 0
-  const avgLoss = losses.length > 0 ? totalLoss/losses.length : 0
-  const winRate = realisedPnls.length > 0 ? wins.length/realisedPnls.length : 0
-  const lossRate = 1 - winRate
-  const plRatio = avgLoss > 0 ? avgWin/avgLoss : 0
-  const expectancy = avgWin*winRate - avgLoss*lossRate
-  const ytdPnl = realisedPnls.filter(p=>new Date(p.date+'T00:00:00')>=fyStart).reduce((s,p)=>s+p.pnl,0)
-
+  const wins = closed.filter(p=>p.pnl>0), losses = closed.filter(p=>p.pnl<0)
+  const tw = wins.reduce((s,p)=>s+p.pnl,0), tl = losses.reduce((s,p)=>s+Math.abs(p.pnl),0)
+  const aw = wins.length ? tw/wins.length : 0, al = losses.length ? tl/losses.length : 0
+  const wr = closed.length ? wins.length/closed.length : 0
   return {
-    total: realisedPnls.length,
-    wins: wins.length,
-    losses: losses.length,
-    winRate: winRate*100,
-    lossRate: lossRate*100,
-    winLossRatio: losses.length > 0 ? wins.length/losses.length : wins.length,
-    totalWin, totalLoss, avgWin, avgLoss,
-    plRatio, expectancy,
-    totalPnl: realisedPnls.reduce((s,p)=>s+p.pnl,0),
-    ytdPnl,
-    largestWin: wins.length>0 ? Math.max(...wins.map(p=>p.pnl)) : 0,
-    largestLoss: losses.length>0 ? Math.max(...losses.map(p=>Math.abs(p.pnl))) : 0,
-    monthlyPnl: (() => {
-      const m = {}
-      realisedPnls.forEach(p => {
-        const key = p.date.slice(0,7)
-        m[key] = (m[key]||0) + p.pnl
-      })
-      return m
-    })(),
+    total:closed.length, wins:wins.length, losses:losses.length,
+    winRate:wr*100, winLossRatio: losses.length ? wins.length/losses.length : wins.length,
+    avgWin:aw, avgLoss:al, plRatio: al > 0 ? aw/al : 0,
+    expectancy: aw*wr - al*(1-wr),
+    totalPnl: closed.reduce((s,p)=>s+p.pnl,0),
+    ytdPnl: closed.filter(p=>new Date(p.date+'T00:00:00')>=fyStart).reduce((s,p)=>s+p.pnl,0),
+    monthlyPnl: (() => { const m={}; closed.forEach(p=>{const k=p.date.slice(0,7);m[k]=(m[k]||0)+p.pnl}); return m })(),
   }
 }
 
 // ============================================================
-// RENDER SUMMARY CARDS
+// RENDER SUMMARY CARDS + CAPITAL BAR
 // ============================================================
 function renderSummaryCards() {
   const holdings = computeHoldings()
   const stats = computeStats()
-  const totalValue = holdings.reduce((s,h)=>s+h.totalCost, 0)
-
+  const capital = getCapital()
+  const invested = holdings.reduce((s,h)=>s+h.totalCost, 0)
   const fyYear = new Date().getMonth()>=6 ? new Date().getFullYear() : new Date().getFullYear()-1
-  const fyLabel = `FY${String(fyYear).slice(2)}/${String(fyYear+1).slice(2)}`
-  document.getElementById('fyLabel').textContent = `${fyLabel} · Wealth Within Institute – Diploma of Share Trading`
+  document.getElementById('fyLabel').textContent = `FY${String(fyYear).slice(2)}/${String(fyYear+1).slice(2)}`
 
-  const cardData = [
-    { label:'Total Portfolio Value', value: fmt(totalValue), sub: `${holdings.length} positions`, icon:'💼', color:'blue' },
-    { label:'Realised P&L (All Time)', value: fmt(stats.totalPnl), sub: `${fyLabel}: ${fmt(stats.ytdPnl)}`, positive: stats.totalPnl>=0, icon:'📈', color: stats.totalPnl>=0?'green':'red' },
-    { label:'Win / Loss Ratio', value: stats.total>0 ? fmtN(stats.winLossRatio) : '—', sub: `${stats.wins}W / ${stats.losses}L of ${stats.total} trades`, positive: stats.winLossRatio>=1, icon:'🎯', color: stats.winLossRatio>=1?'green':'red' },
-    { label:'Profit / Loss Ratio', value: stats.total>0 ? fmtN(stats.plRatio) : '—', sub: `Expectancy: ${stats.total>0?fmt(stats.expectancy):'—'}`, positive: stats.plRatio>=1, icon:'⚡', color: stats.plRatio>=1?'green':'red' },
+  const cards = [
+    { label:'Total Capital', value:fmt(capital), sub:`${fmt(capital-invested)} available cash`, icon:'💼', color:'blue', pos:null },
+    { label:'Invested', value:fmt(invested), sub:`${capital>0?((invested/capital)*100).toFixed(1):0}% deployed`, icon:'📊', color:'amber', pos:null },
+    { label:'Realised P&L', value:fmt(stats.totalPnl), sub:`FY: ${fmt(stats.ytdPnl)}`, icon:'📈', color:stats.totalPnl>=0?'green':'red', pos:stats.totalPnl>=0 },
+    { label:'Win / Loss Ratio', value:stats.total?fmtN(stats.winLossRatio):'—', sub:`${stats.wins}W / ${stats.losses}L of ${stats.total} closed`, icon:'🎯', color:stats.winLossRatio>=1?'green':'red', pos:stats.winLossRatio>=1 },
   ]
-
-  const html = cardData.map(c=>`
-    <div class="card metric">
-      <div class="metric-icon ${c.color}"><span style="font-size:18px">${c.icon}</span></div>
-      <div class="metric-label">${c.label}</div>
-      <div class="metric-value ${c.positive===true?'pos':c.positive===false?'neg':''}">${c.value}</div>
-      <div class="metric-sub">${c.sub}</div>
-    </div>`).join('')
-
+  const html = cards.map(c=>`<div class="card metric">
+    <div class="metric-icon ${c.color}"><span style="font-size:17px">${c.icon}</span></div>
+    <div class="metric-label">${c.label}</div>
+    <div class="metric-value ${c.pos===true?'pos':c.pos===false?'neg':''}">${c.value}</div>
+    <div class="metric-sub">${c.sub}</div>
+  </div>`).join('')
   document.getElementById('summaryCards').innerHTML = html
-  if(document.getElementById('portfolioSummaryCards'))
-    document.getElementById('portfolioSummaryCards').innerHTML = html
+  const ps = document.getElementById('portfolioSummaryCards')
+  if (ps) ps.innerHTML = html
+
+  const wrap = document.getElementById('capitalBarWrap')
+  if (wrap && capital > 0) {
+    const p = (invested/capital)*100
+    const fc = p > 90 ? 'over' : p > 70 ? 'warn' : ''
+    wrap.innerHTML = `<div class="capital-bar-label"><span>Capital Deployed: ${p.toFixed(1)}%</span><span>${fmt(invested)} of ${fmt(capital)}</span></div>
+      <div class="capital-bar-bg"><div class="capital-bar-fill ${fc}" style="width:${Math.min(p,100)}%"></div></div>`
+  } else if (wrap) { wrap.innerHTML = '' }
 }
 
 // ============================================================
-// RENDER HOLDINGS (with live prices)
+// RENDER HOLDINGS (async — live prices)
 // ============================================================
 async function renderHoldings() {
   const holdings = computeHoldings()
   const tbody = document.getElementById('holdingsBody')
   if (!tbody) return
   if (!holdings.length) {
-    tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">No open positions</div><div>Add a buy trade to see your holdings</div></div></td></tr>'
+    tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">No open positions</div><div>Record a buy trade to see your holdings here</div></div></td></tr>'
     return
   }
-  tbody.innerHTML = holdings.map(h => `
-    <tr>
+  const capital = getCapital()
+  tbody.innerHTML = holdings.map(h => {
+    const cp = capital > 0 ? (h.totalCost/capital*100).toFixed(1)+'%' : '—'
+    return `<tr>
       <td><strong>${h.ticker}</strong></td>
       <td style="color:var(--text2);font-size:12px">${h.company}</td>
       <td>${h.qty.toLocaleString()}</td>
       <td>${fmt(h.avgCost)}</td>
       <td>${fmt(h.totalCost)}</td>
-      <td id="hp-${h.ticker}" style="color:var(--text2)"><span style="opacity:.4">⟳</span></td>
+      <td id="hp-${h.ticker}" style="color:var(--text2)"><span style="opacity:.35">⟳</span></td>
       <td id="hmv-${h.ticker}" style="color:var(--text2)">${fmt(h.totalCost)}</td>
       <td id="hpnl-${h.ticker}" style="color:var(--text2)">—</td>
       <td id="hpnlp-${h.ticker}" style="color:var(--text2)">—</td>
-      <td style="color:var(--text2)">${fmtDate(h.firstDate)}</td>
-      <td></td>
-    </tr>`).join('')
+      <td style="color:var(--text2);font-size:12px">${cp}</td>
+      <td style="color:var(--text2);font-size:12px">${fmtDate(h.firstDate)}</td>
+    </tr>`
+  }).join('')
 
-  // Fetch live prices and update cells
-  const prices = await fetchMultiplePrices(holdings.map(h => h.ticker))
-  holdings.forEach((h, i) => {
+  const prices = await fetchMultiplePrices(holdings.map(h=>h.ticker))
+  holdings.forEach((h,i) => {
     const p = prices[i]
-    const priceEl = document.getElementById(`hp-${h.ticker}`)
-    const mvEl = document.getElementById(`hmv-${h.ticker}`)
-    const pnlEl = document.getElementById(`hpnl-${h.ticker}`)
-    const pnlPEl = document.getElementById(`hpnlp-${h.ticker}`)
-    if (!p) {
-      if (priceEl) priceEl.innerHTML = '<span style="color:var(--text3);font-size:11px">N/A</span>'
-      return
-    }
-    const mktVal = p.price * h.qty
-    const pnl = mktVal - h.totalCost
-    const pnlPct = h.totalCost > 0 ? pnl / h.totalCost * 100 : 0
-    const chgClass = p.change >= 0 ? 'price-up' : 'price-dn'
-    if (priceEl) priceEl.innerHTML = `${fmt(p.price)} <span class="price-tag ${chgClass}">${p.change >= 0 ? '+' : ''}${p.change.toFixed(2)}%</span>`
-    if (mvEl) { mvEl.textContent = fmt(mktVal); mvEl.style.color = '' }
-    if (pnlEl) { pnlEl.textContent = fmt(pnl); pnlEl.className = pnl >= 0 ? 'pos' : 'neg' }
-    if (pnlPEl) { pnlPEl.textContent = (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(2) + '%'; pnlPEl.className = pnlPct >= 0 ? 'pos' : 'neg' }
+    const pe = document.getElementById(`hp-${h.ticker}`)
+    const me = document.getElementById(`hmv-${h.ticker}`)
+    const ne = document.getElementById(`hpnl-${h.ticker}`)
+    const np = document.getElementById(`hpnlp-${h.ticker}`)
+    if (!p) { if(pe) pe.innerHTML='<span style="color:var(--text3);font-size:11px">N/A</span>'; return }
+    const mv = p.price * h.qty
+    const pnlv = mv - h.totalCost
+    const pnlp = h.totalCost > 0 ? pnlv/h.totalCost*100 : 0
+    const cc = p.change>=0 ? 'price-up' : 'price-dn'
+    if(pe) pe.innerHTML=`${fmt(p.price)} <span class="price-tag ${cc}">${p.change>=0?'+':''}${p.change.toFixed(2)}%</span>`
+    if(me) { me.textContent=fmt(mv); me.style.color='' }
+    if(ne) { ne.textContent=fmt(pnlv); ne.className=pnlv>=0?'pos':'neg' }
+    if(np) { np.textContent=pct(pnlp); np.className=pnlp>=0?'pos':'neg' }
   })
 }
 
@@ -1051,21 +826,26 @@ async function renderHoldings() {
 function renderRecentTrades() {
   const tbody = document.getElementById('recentTradesBody')
   if (!tbody) return
+  const capital = getCapital()
   const trades = DB.trades.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8)
   if (!trades.length) {
     tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No trades yet</div></div></td></tr>'
     return
   }
-  tbody.innerHTML = trades.map(t => `
-    <tr>
+  tbody.innerHTML = trades.map(t => {
+    const total = t.qty * t.price + (t.dir==='buy'?1:-1)*(t.fee||0)
+    const cp = capital > 0 && t.dir==='buy' ? (total/capital*100).toFixed(1)+'%' : '—'
+    const warn = capital > 0 && t.dir==='buy' && total/capital > 0.2
+    return `<tr>
       <td style="color:var(--text2)">${fmtDate(t.date)}</td>
       <td><strong>${t.ticker}</strong></td>
       <td><span class="badge ${t.dir==='buy'?'badge-green':'badge-red'}">${t.dir.toUpperCase()}</span></td>
       <td>${t.qty.toLocaleString()}</td>
       <td>${fmt(t.price)}</td>
-      <td><strong>${fmt(t.qty*t.price+(t.dir==='buy'?1:-1)*(t.fee||0))}</strong></td>
-      <td><span class="strategy-pill">${stratLabel(t.strategy)}</span></td>
-    </tr>`).join('')
+      <td><strong>${fmt(total)}</strong></td>
+      <td style="color:${warn?'var(--amber)':'var(--text2)'}">${cp}${warn?' ⚠️':''}</td>
+    </tr>`
+  }).join('')
 }
 
 // ============================================================
@@ -1073,52 +853,55 @@ function renderRecentTrades() {
 // ============================================================
 function renderJournal() {
   const search = (document.getElementById('journalSearch')?.value||'').toLowerCase()
-  const strat  = document.getElementById('journalStrategy')?.value||''
-  const dir    = document.getElementById('journalDir')?.value||''
+  const dir = document.getElementById('journalDir')?.value||''
   let trades = DB.trades.slice().sort((a,b)=>b.date.localeCompare(a.date))
   if (search) trades = trades.filter(t =>
     t.ticker.toLowerCase().includes(search) ||
     t.company.toLowerCase().includes(search) ||
     (t.comments||'').toLowerCase().includes(search) ||
-    (t.volume||'').toLowerCase().includes(search) ||
-    (t.bar||'').toLowerCase().includes(search)
+    (t.vol||'').toLowerCase().includes(search)
   )
-  if (strat) trades = trades.filter(t=>t.strategy===strat)
   if (dir) trades = trades.filter(t=>t.dir===dir)
-
+  const capital = getCapital()
+  const plans = DB.plans
   const el = document.getElementById('journalList')
   if (!trades.length) {
-    el.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">No trades found</div><div>Try adjusting your search or filters</div></div></div>'
+    el.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">No trades found</div></div></div>'
     return
   }
-  el.innerHTML = trades.map(t => `
-    <div class="card mb-4" style="margin-bottom:12px">
+  el.innerHTML = trades.map(t => {
+    const total = t.qty * t.price + (t.dir==='buy'?1:-1)*(t.fee||0)
+    const cp = capital > 0 && t.dir==='buy' ? (total/capital*100).toFixed(1) : null
+    const warn = cp && parseFloat(cp) > 20
+    const plan = t.planId ? plans.find(p=>p.id===t.planId) : null
+    return `<div class="card" style="margin-bottom:12px">
       <div class="flex justify-between items-center">
         <div class="flex items-center gap-3" style="flex-wrap:wrap">
-          <span style="font-size:20px;font-weight:700">${t.ticker}</span>
+          <span style="font-size:19px;font-weight:700">${t.ticker}</span>
           <span class="badge ${t.dir==='buy'?'badge-green':'badge-red'}">${t.dir.toUpperCase()}</span>
           <span style="color:var(--text2);font-size:12px">${fmtDate(t.date)}</span>
-          <span class="strategy-pill">${stratLabel(t.strategy)}</span>
-          ${t.entry?`<span style="font-size:11px;color:var(--text3)">${entryLabel(t.entry)}</span>`:''}
+          ${cp?`<span class="badge ${warn?'badge-amber':'badge-gray'}">${cp}% capital${warn?' ⚠️':''}</span>`:''}
+          ${plan?`<span class="badge badge-blue" style="cursor:pointer" onclick="openPlanView('${plan.id}')">📋 ${plan.ticker} Plan</span>`:''}
         </div>
         <button class="btn btn-danger btn-sm" onclick="deleteTrade('${t.id}')">Delete</button>
       </div>
-      <div style="color:var(--text2);font-size:13px;margin-top:4px">${t.company}</div>
+      <div style="color:var(--text2);font-size:13px;margin-top:3px">${t.company}</div>
       <div class="flex gap-4 mt-2" style="font-size:12px;color:var(--text2);flex-wrap:wrap">
-        <span>${t.qty.toLocaleString()} shares @ ${fmt(t.price)}</span>
+        <span>${t.qty.toLocaleString()} @ ${fmt(t.price)}</span>
         <span>Fee: ${fmt(t.fee||0)}</span>
-        <span><strong style="color:var(--text)">Total: ${fmt(t.qty*t.price+(t.dir==='buy'?1:-1)*(t.fee||0))}</strong></span>
-        ${t.risk?`<span>Risk: ${t.risk}%</span>`:''}
+        <span><strong style="color:var(--text)">Total: ${fmt(total)}</strong></span>
+        ${t.risk?`<span>Risk: ${t.risk}% capital</span>`:''}
         ${t.sl?`<span>SL: ${fmt(t.sl)}</span>`:''}
       </div>
-      ${(t.comments||t.volume||t.bar||t.slreason)?`
+      ${(t.comments||t.vol||t.bar||t.slreason)?`
       <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px">
         ${t.comments?`<div><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Journal: </span><span style="font-size:12px">${t.comments}</span></div>`:''}
-        ${t.volume?`<div><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Volume (M2): </span><span style="font-size:12px;color:var(--text2)">${t.volume}</span></div>`:''}
-        ${t.bar?`<div><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Bar Analysis (M2): </span><span style="font-size:12px;color:var(--text2)">${t.bar}</span></div>`:''}
+        ${t.vol?`<div><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Volume: </span><span style="font-size:12px;color:var(--text2)">${t.vol}</span></div>`:''}
+        ${t.bar?`<div><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Bar Analysis: </span><span style="font-size:12px;color:var(--text2)">${t.bar}</span></div>`:''}
         ${t.slreason?`<div><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">SL Reason: </span><span style="font-size:12px;color:var(--text2)">${t.slreason}</span></div>`:''}
       </div>`:''}
-    </div>`).join('')
+    </div>`
+  }).join('')
 }
 
 // ============================================================
@@ -1130,46 +913,33 @@ function renderPerformance() {
   const el = document.getElementById('perfMetrics')
   if (!el) return
   el.innerHTML = [
-    { label:'Win Rate', value: s.total>0?fmtN(s.winRate)+'%':'—', sub:`${s.wins} wins / ${s.total} trades`, color: s.winRate>=50?'green':'red' },
-    { label:'Win/Loss Ratio', value: s.total>0?fmtN(s.winLossRatio):'—', sub:`${s.wins}W / ${s.losses}L`, color: s.winLossRatio>=1?'green':'red', tip:'Module 3: Wins ÷ Losses' },
-    { label:'Profit/Loss Ratio', value: s.total>0?fmtN(s.plRatio):'—', sub:`Avg Win ${fmt(s.avgWin)} / Avg Loss ${fmt(s.avgLoss)}`, color: s.plRatio>=1?'green':'red', tip:'Module 3: Avg Win ÷ Avg Loss' },
-    { label:'Expectancy / Trade', value: s.total>0?fmt(s.expectancy):'—', sub:'Expected profit per trade', color: s.expectancy>=0?'green':'red', tip:'(Win% × Avg Win) − (Loss% × Avg Loss)' },
+    { label:'Win Rate', value:s.total?fmtN(s.winRate)+'%':'—', sub:`${s.wins} wins / ${s.total} closed`, color:s.winRate>=50?'pos':'neg' },
+    { label:'Win/Loss Ratio', value:s.total?fmtN(s.winLossRatio):'—', sub:`${s.wins}W / ${s.losses}L`, color:s.winLossRatio>=1?'pos':'neg' },
+    { label:'Profit/Loss Ratio', value:s.total?fmtN(s.plRatio):'—', sub:`Avg Win ${fmt(s.avgWin)} / Avg Loss ${fmt(s.avgLoss)}`, color:s.plRatio>=1?'pos':'neg' },
+    { label:'Expectancy / Trade', value:s.total?fmt(s.expectancy):'—', sub:'(Win% × Avg Win) − (Loss% × Avg Loss)', color:s.expectancy>=0?'pos':'neg' },
   ].map(c=>`<div class="card metric">
-    <div class="metric-label">${c.label}${c.tip?` <span title="${c.tip}" style="cursor:help;font-size:10px">ℹ️</span>`:''}</div>
-    <div class="metric-value ${c.color==='green'?'pos':'neg'}">${c.value}</div>
+    <div class="metric-label">${c.label}</div>
+    <div class="metric-value ${c.color}">${c.value}</div>
     <div class="metric-sub">${c.sub}</div>
   </div>`).join('')
 
-  // Win/Loss Pie
   const wlCtx = document.getElementById('winLossChart')?.getContext('2d')
   if (wlCtx) {
     if (chartInstances.winLoss) chartInstances.winLoss.destroy()
     chartInstances.winLoss = new Chart(wlCtx, {
-      type: 'doughnut',
-      data: {
-        labels: [`Wins (${s.wins})`, `Losses (${s.losses})`],
-        datasets: [{ data: [s.wins||0.001, s.losses||0.001], backgroundColor: ['#10b981','#ef4444'], borderWidth: 0 }]
-      },
-      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom',labels:{color:getColor(),font:{size:12}}} } }
+      type:'doughnut',
+      data:{ labels:[`Wins (${s.wins})`,`Losses (${s.losses})`], datasets:[{ data:[s.wins||0.001,s.losses||0.001], backgroundColor:['#10b981','#ef4444'], borderWidth:0 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom',labels:{color:chartColor(),font:{size:12}}} } }
     })
   }
-
-  // Monthly P&L
   const mCtx = document.getElementById('monthlyChart')?.getContext('2d')
   if (mCtx) {
     if (chartInstances.monthly) chartInstances.monthly.destroy()
     const months = Object.entries(s.monthlyPnl).sort(([a],[b])=>a.localeCompare(b))
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light'
     chartInstances.monthly = new Chart(mCtx, {
-      type: 'bar',
-      data: {
-        labels: months.map(([k])=>k),
-        datasets: [{ label:'Realised P&L', data: months.map(([,v])=>v), backgroundColor: months.map(([,v])=>v>=0?'rgba(16,185,129,.8)':'rgba(239,68,68,.8)'), borderRadius: 5 }]
-      },
-      options: { responsive:true, maintainAspectRatio:false, scales:{
-        x:{ticks:{color:getColor(),font:{size:11}}},
-        y:{ticks:{color:getColor(),font:{size:11},callback:v=>`$${(v/1000).toFixed(0)}k`}}
-      }, plugins:{legend:{display:false}} }
+      type:'bar',
+      data:{ labels:months.map(([k])=>k), datasets:[{ data:months.map(([,v])=>v), backgroundColor:months.map(([,v])=>v>=0?'rgba(16,185,129,.8)':'rgba(239,68,68,.8)'), borderRadius:5 }] },
+      options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{ticks:{color:chartColor(),font:{size:11}}}, y:{ticks:{color:chartColor(),font:{size:11},callback:v=>`$${(v/1000).toFixed(0)}k`}} }, plugins:{legend:{display:false}} }
     })
   }
 }
@@ -1178,280 +948,237 @@ function renderPerformance() {
 // RENDER DASHBOARD CHARTS
 // ============================================================
 function renderDashboardCharts() {
-  // Strategy chart
-  const sCtx = document.getElementById('strategyChart')?.getContext('2d')
-  if (sCtx) {
-    if (chartInstances.strategy) chartInstances.strategy.destroy()
-    const trades = DB.trades
-    const stratCount = {}
-    trades.forEach(t => stratCount[stratLabel(t.strategy)] = (stratCount[stratLabel(t.strategy)]||0)+1)
-    const entries = Object.entries(stratCount)
-    chartInstances.strategy = new Chart(sCtx, {
-      type: 'bar',
-      data: {
-        labels: entries.map(([k])=>k),
-        datasets: [{ data: entries.map(([,v])=>v), backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ec4899','#8b5cf6','#06b6d4'], borderRadius:5, label:'Trades' }]
-      },
-      options: { responsive:true, maintainAspectRatio:false, scales:{
-        x:{ticks:{color:getColor(),font:{size:10}}},
-        y:{ticks:{color:getColor(),font:{size:11}}}
-      }, plugins:{legend:{display:false}} }
+  // Portfolio Allocation Pie (shares + cash)
+  const aCtx = document.getElementById('allocationChart')?.getContext('2d')
+  if (aCtx) {
+    if (chartInstances.allocation) chartInstances.allocation.destroy()
+    const holdings = computeHoldings()
+    const capital = getCapital()
+    const invested = holdings.reduce((s,h)=>s+h.totalCost,0)
+    const cash = Math.max(0, capital - invested)
+    const labels = [...holdings.map(h=>h.ticker), ...(cash>0||!holdings.length?['Cash']:[]) ]
+    const data  = [...holdings.map(h=>h.totalCost), ...(cash>0||!holdings.length?[cash]:[]) ]
+    const palette = ['#3b82f6','#10b981','#f59e0b','#ec4899','#8b5cf6','#06b6d4','#f97316','#84cc16','#14b8a6']
+    chartInstances.allocation = new Chart(aCtx, {
+      type:'doughnut',
+      data:{ labels, datasets:[{ data, backgroundColor:data.map((_,i)=>i===data.length-1&&labels[i]==='Cash'?'#334155':palette[i%palette.length]), borderWidth:0 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom',labels:{color:chartColor(),font:{size:11},boxWidth:10,padding:8}} } }
     })
   }
-
-  // P&L trend (cumulative)
+  // Cumulative P&L Line
   const pCtx = document.getElementById('pnlChart')?.getContext('2d')
   if (pCtx) {
     if (chartInstances.pnl) chartInstances.pnl.destroy()
-    const s = computeStats()
-    const months = Object.entries(s.monthlyPnl).sort(([a],[b])=>a.localeCompare(b))
+    const months = Object.entries(computeStats().monthlyPnl).sort(([a],[b])=>a.localeCompare(b))
     let cum = 0
-    const cumData = months.map(([k,v])=>{ cum+=v; return { x:k, y:cum } })
+    const pts = months.map(([k,v])=>{ cum+=v; return {x:k,y:cum} })
     chartInstances.pnl = new Chart(pCtx, {
-      type: 'line',
-      data: {
-        labels: cumData.map(d=>d.x),
-        datasets: [{ label:'Cumulative P&L', data: cumData.map(d=>d.y), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.1)', fill:true, tension:.3, pointRadius:3, pointBackgroundColor:'#10b981' }]
-      },
-      options: { responsive:true, maintainAspectRatio:false, scales:{
-        x:{ticks:{color:getColor(),font:{size:10}}},
-        y:{ticks:{color:getColor(),font:{size:11},callback:v=>`$${(v/1000).toFixed(0)}k`}}
-      }, plugins:{legend:{display:false}} }
+      type:'line',
+      data:{ labels:pts.map(d=>d.x), datasets:[{ data:pts.map(d=>d.y), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.1)', fill:true, tension:.3, pointRadius:3, pointBackgroundColor:'#10b981' }] },
+      options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{ticks:{color:chartColor(),font:{size:10}}}, y:{ticks:{color:chartColor(),font:{size:11},callback:v=>`$${(v/1000).toFixed(0)}k`}} }, plugins:{legend:{display:false}} }
     })
   }
 }
 
-function getColor() {
+function chartColor() {
   return document.documentElement.getAttribute('data-theme')==='light' ? '#64748b' : '#94a3b8'
 }
 
 // ============================================================
-// YAHOO FINANCE ASX — SEARCH & LIVE PRICES
-// ============================================================
-const priceCache = {}
-const CORS_PROXY = 'https://corsproxy.io/?url='
-
-async function yahooFetch(url) {
-  // Try direct first (works in some browsers/environments)
-  try {
-    const res = await fetch(url, { mode: 'cors' })
-    if (res.ok) return res.json()
-  } catch (_) { /* fall through to proxy */ }
-  // Fallback: CORS proxy
-  const res = await fetch(CORS_PROXY + encodeURIComponent(url))
-  if (!res.ok) throw new Error('fetch failed')
-  return res.json()
-}
-
-async function fetchASXPrice(ticker) {
-  const key = ticker.toUpperCase()
-  // Cache for 5 minutes
-  if (priceCache[key] && Date.now() - priceCache[key].ts < 5 * 60 * 1000) return priceCache[key]
-  try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${key}.AX?interval=1d&range=1d`
-    const data = await yahooFetch(url)
-    const result = data?.chart?.result?.[0]
-    if (!result) return null
-    const meta = result.meta
-    const price = meta.regularMarketPrice ?? meta.previousClose
-    const prev = meta.previousClose ?? meta.chartPreviousClose
-    const change = prev && prev !== 0 ? (price - prev) / prev * 100 : 0
-    const entry = { price, change, name: meta.shortName || key, ts: Date.now() }
-    priceCache[key] = entry
-    return entry
-  } catch {
-    return null
-  }
-}
-
-async function fetchMultiplePrices(tickers) {
-  return Promise.all(tickers.map(t => fetchASXPrice(t)))
-}
-
-async function refreshAllPrices() {
-  const btn = document.getElementById('refreshPricesBtn')
-  if (btn) { btn.disabled = true; btn.textContent = '⟳ Refreshing...' }
-  // Clear cache so we get fresh prices
-  Object.keys(priceCache).forEach(k => delete priceCache[k])
-  await renderHoldings()
-  await renderWatchlist()
-  if (btn) { btn.disabled = false; btn.textContent = '⟳ Live Prices' }
-  toast('Prices refreshed ✓')
-}
-
-// Debounced ASX ticker search
-let _searchTimer = null
-function onTickerInput(query, tickerInputId, companyInputId) {
-  const listEl = document.getElementById(tickerInputId + '_list')
-  if (!listEl) return
-  if (query.length < 1) { listEl.style.display = 'none'; return }
-  listEl.innerHTML = '<div class="ac-loading">Searching ASX...</div>'
-  listEl.style.display = 'block'
-  clearTimeout(_searchTimer)
-  _searchTimer = setTimeout(() => searchASX(query, tickerInputId, companyInputId), 320)
-}
-
-async function searchASX(query, tickerInputId, companyInputId) {
-  const listEl = document.getElementById(tickerInputId + '_list')
-  if (!listEl) return
-  try {
-    const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=10&newsCount=0&listsCount=0&enableFuzzyQuery=false`
-    const data = await yahooFetch(url)
-    const quotes = (data?.quotes || []).filter(q =>
-      q.exchange === 'ASX' || (q.symbol || '').endsWith('.AX')
-    )
-    if (!quotes.length) {
-      listEl.innerHTML = '<div class="ac-loading">No ASX results found</div>'
-      return
-    }
-    listEl.innerHTML = quotes.slice(0, 8).map(q => {
-      const ticker = (q.symbol || '').replace(/\.AX$/i, '').toUpperCase()
-      const name = (q.longname || q.shortname || ticker).replace(/'/g, '&#39;')
-      return `<div class="ac-item" onclick="selectTicker('${ticker}','${name}','${tickerInputId}','${companyInputId}')">
-        <span class="ac-ticker">${ticker}</span>
-        <span class="ac-name">${name}</span>
-      </div>`
-    }).join('')
-    listEl.style.display = 'block'
-  } catch {
-    listEl.innerHTML = '<div class="ac-loading">Search unavailable</div>'
-  }
-}
-
-async function selectTicker(ticker, name, tickerInputId, companyInputId) {
-  const tickerEl = document.getElementById(tickerInputId)
-  const companyEl = document.getElementById(companyInputId)
-  const listEl = document.getElementById(tickerInputId + '_list')
-  if (tickerEl) tickerEl.value = ticker
-  if (companyEl) companyEl.value = name
-  if (listEl) listEl.style.display = 'none'
-
-  // Pre-fill current price for trade modal
-  if (tickerInputId === 't_ticker') {
-    const priceEl = document.getElementById('t_price')
-    if (priceEl && !priceEl.value) {
-      const p = await fetchASXPrice(ticker)
-      if (p) {
-        priceEl.value = p.price.toFixed(3)
-        calcTotal()
-        toast(`${ticker}: $${p.price.toFixed(2)} (${p.change >= 0 ? '+' : ''}${p.change.toFixed(2)}%)`)
-      }
-    }
-  }
-}
-
-// Close autocomplete dropdowns when clicking outside
-document.addEventListener('click', e => {
-  if (!e.target.closest('.ac-wrap')) {
-    document.querySelectorAll('.ac-list').forEach(l => { l.style.display = 'none' })
-  }
-})
-
-// ============================================================
-// RENDER WATCHLIST (with live prices)
+// RENDER WATCHLIST (async — live prices)
 // ============================================================
 async function renderWatchlist() {
   const el = document.getElementById('watchlistGrid')
   if (!el) return
   const items = DB.watchlist
   if (!items.length) {
-    el.innerHTML = `<div class="card" style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">👀</div><div class="empty-title">Watchlist is empty</div><div>Add stocks you're analysing using top-down analysis</div></div></div>`
+    el.innerHTML = `<div class="card" style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">👀</div><div class="empty-title">Watchlist is empty</div><div>Type an ASX ticker to add a stock</div></div></div>`
     return
   }
   const priorityColor = { high:'badge-red', medium:'badge-amber', low:'badge-gray' }
-  const trendIcon = { uptrend:'↑', downtrend:'↓', sideways:'→' }
-  const trendColor = { uptrend:'var(--green)', downtrend:'var(--red)', sideways:'var(--amber)' }
   el.innerHTML = items.map(w => `
     <div class="watch-card">
       <div class="flex justify-between items-center">
-        <div class="flex items-center gap-2">
-          <div class="watch-ticker">${w.ticker}</div>
-          ${w.trend?`<span style="color:${trendColor[w.trend]};font-size:18px;font-weight:700">${trendIcon[w.trend]}</span>`:''}
-        </div>
-        <div class="flex gap-1">
+        <div class="watch-ticker">${w.ticker}</div>
+        <div class="flex gap-1 items-center">
           <span class="badge ${priorityColor[w.priority]}">${w.priority}</span>
           <button class="btn-icon btn-sm" onclick="deleteWatch('${w.id}')">✕</button>
         </div>
       </div>
-      <div class="watch-name">${w.company}</div>
-      <div id="wp-${w.ticker}-${w.id}" style="margin-top:6px;min-height:20px"><span style="opacity:.35;font-size:11px">⟳ fetching price...</span></div>
-      ${w.sector?`<div class="text-xs mt-2" style="color:var(--text3)">${w.sector}</div>`:''}
-      ${w.strategy?`<div class="strategy-pill" style="display:inline-block;margin-top:8px">${stratLabel(w.strategy)}</div>`:''}
-      ${(w.support||w.resist)?`
-      <div class="flex gap-2 mt-2">
-        ${w.support?`<div style="background:var(--green-bg);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--green)">S: $${w.support}</div>`:''}
-        ${w.resist?`<div style="background:var(--red-bg);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--red)">R: $${w.resist}</div>`:''}
-      </div>`:''}
-      ${w.techNotes?`<div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.5">${w.techNotes}</div>`:''}
+      <div class="watch-name">${w.company||'—'}</div>
+      <div id="wp-${w.id}" style="margin-top:6px;min-height:22px"><span style="opacity:.3;font-size:11px">⟳</span></div>
+      ${w.industry?`<div style="font-size:11px;color:var(--text3);margin-top:4px">${w.industry}</div>`:''}
+      ${w.notes?`<div style="font-size:12px;color:var(--text2);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);line-height:1.6">${w.notes}</div>`:''}
     </div>`).join('')
 
-  // Fetch live prices for all watchlist items
-  const prices = await fetchMultiplePrices(items.map(w => w.ticker))
-  items.forEach((w, i) => {
+  const prices = await fetchMultiplePrices(items.map(w=>w.ticker))
+  items.forEach((w,i) => {
     const p = prices[i]
-    const priceEl = document.getElementById(`wp-${w.ticker}-${w.id}`)
-    if (!priceEl) return
-    if (!p) { priceEl.innerHTML = '<span style="color:var(--text3);font-size:11px">Price unavailable</span>'; return }
-    const chgClass = p.change >= 0 ? 'price-up' : 'price-dn'
-    priceEl.innerHTML = `<span style="font-size:15px;font-weight:700">${fmt(p.price)}</span> <span class="price-tag ${chgClass}">${p.change >= 0 ? '+' : ''}${p.change.toFixed(2)}%</span>`
+    const cel = document.getElementById(`wp-${w.id}`)
+    if (!cel) return
+    if (!p) { cel.innerHTML='<span style="color:var(--text3);font-size:11px">Price unavailable</span>'; return }
+    const cc = p.change>=0?'price-up':'price-dn'
+    cel.innerHTML = `<span style="font-size:15px;font-weight:700">${fmt(p.price)}</span> <span class="price-tag ${cc}">${p.change>=0?'+':''}${p.change.toFixed(2)}%</span>`
   })
 }
 
 // ============================================================
-// LOAD TRADING PLAN
+// TRADING PLANS
 // ============================================================
-function loadPlan() {
-  const p = DB.plan
-  if (!p||!Object.keys(p).length) return
-  const ids = ['portType','timeFrame','markets','risk','maxRisk','posMethod','mmRules','psychology','topdown','btWin','btPL','btNotes','extra']
-  ids.forEach(id => { const el = document.getElementById('plan_'+id); if(el&&p[id]!==undefined) el.value=p[id] })
+function renderPlanNav() {
+  const plans = DB.plans
+  const el = document.getElementById('planNavList')
+  if (!plans.length) {
+    el.innerHTML = '<div style="padding:5px 12px;font-size:11px;color:var(--text3)">No plans yet — click + to add</div>'
+    return
+  }
+  el.innerHTML = plans.map(p => `
+    <div class="plan-nav-item" id="pnav-${p.id}" onclick="openPlanView('${p.id}')">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+      <span style="overflow:hidden;text-overflow:ellipsis">${p.ticker} — ${p.company||'Plan'}</span>
+    </div>`).join('')
+}
+
+function openNewPlanModal(prefillTicker='') {
+  document.getElementById('pl_editId').value = ''
+  document.getElementById('pl_ticker').value = prefillTicker
+  document.getElementById('pl_company').value = ''
+  ;['pl_entry','pl_exit','pl_riskrules','pl_notes'].forEach(id=>document.getElementById(id).value='')
+  ;['pl_target','pl_stop','pl_maxpos','pl_risk'].forEach(id=>document.getElementById(id).value='')
+  document.getElementById('planModalTitle').textContent = 'New Trading Plan'
+  document.getElementById('planModal').classList.add('open')
+}
+
+function openEditPlanModal(id) {
+  const plan = DB.plans.find(p=>p.id===id)
+  if (!plan) return
+  document.getElementById('pl_editId').value = plan.id
+  document.getElementById('pl_ticker').value = plan.ticker||''
+  document.getElementById('pl_company').value = plan.company||''
+  document.getElementById('pl_entry').value = plan.entry||''
+  document.getElementById('pl_exit').value = plan.exit||''
+  document.getElementById('pl_riskrules').value = plan.riskrules||''
+  document.getElementById('pl_notes').value = plan.notes||''
+  document.getElementById('pl_target').value = plan.target||''
+  document.getElementById('pl_stop').value = plan.stop||''
+  document.getElementById('pl_maxpos').value = plan.maxpos||''
+  document.getElementById('pl_risk').value = plan.risk||''
+  document.getElementById('planModalTitle').textContent = `Edit Plan — ${plan.ticker}`
+  document.getElementById('planModal').classList.add('open')
 }
 
 function savePlan() {
-  const ids = ['portType','timeFrame','markets','risk','maxRisk','posMethod','mmRules','psychology','topdown','btWin','btPL','btNotes','extra']
-  const p = {}
-  ids.forEach(id => { const el = document.getElementById('plan_'+id); if(el) p[id]=el.value })
-  DB.plan = p
-  toast('Trading plan saved ✓')
+  const ticker = document.getElementById('pl_ticker').value.trim().toUpperCase()
+  if (!ticker) { toast('Ticker is required', true); return }
+  const editId = document.getElementById('pl_editId').value
+  const id = editId || uid()
+  const plan = {
+    id, ticker,
+    company: document.getElementById('pl_company').value.trim(),
+    entry: document.getElementById('pl_entry').value,
+    exit: document.getElementById('pl_exit').value,
+    riskrules: document.getElementById('pl_riskrules').value,
+    notes: document.getElementById('pl_notes').value,
+    target: parseFloat(document.getElementById('pl_target').value)||null,
+    stop: parseFloat(document.getElementById('pl_stop').value)||null,
+    maxpos: parseFloat(document.getElementById('pl_maxpos').value)||null,
+    risk: parseFloat(document.getElementById('pl_risk').value)||null,
+    updatedAt: new Date().toISOString().split('T')[0],
+  }
+  const plans = DB.plans
+  const idx = plans.findIndex(p=>p.id===id)
+  if (idx>=0) plans[idx]=plan; else plans.push(plan)
+  DB.plans = plans
+  closeModal('planModal')
+  renderPlanNav()
+  populatePlanDropdown()
+  toast(`${ticker} plan saved ✓`)
 }
 
-function exportPlanText() {
-  const p = DB.plan
-  const text = `WEALTH WITHIN TRADER — PERSONAL TRADING PLAN
-Generated: ${new Date().toLocaleDateString('en-AU')}
+function deletePlan(id) {
+  if (!confirm('Delete this trading plan?')) return
+  DB.plans = DB.plans.filter(p=>p.id!==id)
+  renderPlanNav()
+  populatePlanDropdown()
+  showView('dashboard', document.querySelector('.nav-item'))
+  toast('Plan deleted')
+}
 
-1. PORTFOLIO OVERVIEW
-Portfolio Type: ${p.portType||'—'}
-Time Frame: ${p.timeFrame||'—'}
-Markets Traded: ${p.markets||'—'}
-Risk Level: ${p.risk||'—'}
+function openPlanView(id) {
+  const plan = DB.plans.find(p=>p.id===id)
+  if (!plan) return
+  document.querySelectorAll('.plan-nav-item').forEach(el=>el.classList.remove('active'))
+  document.getElementById('pnav-'+id)?.classList.add('active')
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'))
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'))
+  document.getElementById('view-plan').classList.add('active')
+  if (window.innerWidth<=768) toggleSidebar(false)
 
-2. MONEY MANAGEMENT RULES
-Max Risk per Trade: ${p.maxRisk||2}%
-Position Sizing: ${p.posMethod||'—'}
-Rules:
-${p.mmRules||'—'}
+  const trades = DB.trades.filter(t=>t.planId===id)
+  const rrRatio = plan.target && plan.stop && plan.stop !== plan.target
+    ? Math.abs((plan.target - plan.stop) / plan.stop * 100).toFixed(1) : null
 
-3. PSYCHOLOGY & DISCIPLINE RULES
-${p.psychology||'—'}
+  document.getElementById('planViewContent').innerHTML = `
+    <div class="flex justify-between items-center mb-4" style="margin-top:4px">
+      <div>
+        <div class="page-title">${plan.ticker} — Trading Plan</div>
+        <div class="page-sub" style="margin-bottom:0">${plan.company||''} &nbsp;·&nbsp; Updated ${fmtDate(plan.updatedAt)}</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-outline" onclick="openEditPlanModal('${plan.id}')">Edit</button>
+        <button class="btn btn-danger" onclick="deletePlan('${plan.id}')">Delete</button>
+      </div>
+    </div>
 
-4. TOP-DOWN ANALYSIS FRAMEWORK
-${p.topdown||'—'}
+    <div class="plan-detail-grid">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        ${planSection('Entry Criteria', plan.entry)}
+        ${planSection('Exit Rules', plan.exit)}
+        ${planSection('Risk Management Rules', plan.riskrules)}
+        ${plan.notes ? planSection('Additional Notes', plan.notes) : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="form-section-title">Key Levels</div>
+          <div class="grid grid-2" style="gap:10px">
+            <div class="key-level"><div class="key-level-label">Target</div><div class="key-level-val pos">${plan.target ? fmt(plan.target) : '—'}</div></div>
+            <div class="key-level"><div class="key-level-label">Stop-Loss</div><div class="key-level-val neg">${plan.stop ? fmt(plan.stop) : '—'}</div></div>
+            <div class="key-level"><div class="key-level-label">Max Position</div><div class="key-level-val">${plan.maxpos ? plan.maxpos+'%' : '—'}</div></div>
+            <div class="key-level"><div class="key-level-label">Max Risk</div><div class="key-level-val">${plan.risk ? plan.risk+'%' : '—'}</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="form-section-title">Linked Trades <span class="badge badge-gray" style="margin-left:4px">${trades.length}</span></div>
+          ${trades.length
+            ? `<div class="table-wrap"><table>
+                <thead><tr><th>Date</th><th>Dir</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+                <tbody>${trades.map(t=>{
+                  const total = t.qty*t.price+(t.dir==='buy'?1:-1)*(t.fee||0)
+                  return `<tr>
+                    <td>${fmtDate(t.date)}</td>
+                    <td><span class="badge ${t.dir==='buy'?'badge-green':'badge-red'}">${t.dir.toUpperCase()}</span></td>
+                    <td>${t.qty}</td>
+                    <td>${fmt(t.price)}</td>
+                    <td>${fmt(total)}</td>
+                  </tr>`
+                }).join('')}</tbody>
+               </table></div>`
+            : '<div style="color:var(--text2);font-size:12px">No trades linked to this plan yet. Link a trade by selecting this plan in the trade modal.</div>'}
+        </div>
+      </div>
+    </div>`
+}
 
-5. BACK-TESTING RESULTS
-Win Rate: ${p.btWin||'—'}%
-Profit/Loss Ratio: ${p.btPL||'—'}
-Notes:
-${p.btNotes||'—'}
+function planSection(title, content) {
+  if (!content) return `<div class="card"><div class="form-section-title">${title}</div><div style="color:var(--text3);font-size:12px">Not specified</div></div>`
+  return `<div class="card"><div class="form-section-title">${title}</div><div style="font-size:13px;line-height:1.75;white-space:pre-wrap">${content}</div></div>`
+}
 
-6. ADDITIONAL NOTES
-${p.extra||'—'}
-`
-  const blob = new Blob([text], {type:'text/plain'})
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
-  a.download = 'WW_Trading_Plan.txt'
-  a.click()
+function populatePlanDropdown() {
+  const sel = document.getElementById('t_plan')
+  if (!sel) return
+  sel.innerHTML = '<option value="">— No plan linked —</option>' +
+    DB.plans.map(p=>`<option value="${p.id}">${p.ticker} — ${p.company||p.ticker}</option>`).join('')
 }
 
 // ============================================================
@@ -1459,6 +1186,8 @@ ${p.extra||'—'}
 // ============================================================
 function openTradeModal() {
   document.getElementById('t_date').value = new Date().toISOString().split('T')[0]
+  document.getElementById('capitalWarning').classList.remove('show')
+  populatePlanDropdown()
   document.getElementById('tradeModal').classList.add('open')
 }
 
@@ -1469,25 +1198,28 @@ function saveTrade() {
   const date = document.getElementById('t_date').value
   const qty = parseFloat(document.getElementById('t_qty').value)
   const price = parseFloat(document.getElementById('t_price').value)
-  if (!ticker || !company || !date || !qty || !price) {
-    toast('Please fill in all required fields', true); return
+  if (!ticker||!company||!date||!qty||!price) { toast('Please fill in all required fields', true); return }
+  const fee = parseFloat(document.getElementById('t_fee').value)||0
+  const capital = getCapital()
+  const total = qty * price + (dir==='buy'?1:-1)*fee
+  if (dir==='buy' && capital > 0 && total/capital > 0.2) {
+    if (!confirm(`This trade is ${((total/capital)*100).toFixed(1)}% of total capital — exceeds 20% guideline. Continue?`)) return
   }
-  const fee = parseFloat(document.getElementById('t_fee').value) || 0
+  const sl = parseFloat(document.getElementById('t_sl').value)||0
+  const riskPct = sl > 0 && capital > 0 && qty > 0 && price > 0
+    ? (Math.abs(price-sl) * qty / capital * 100).toFixed(2) : 0
   const trade = {
-    id: uid(), ticker, company, dir, date, qty, price, fee,
-    strategy: document.getElementById('t_strategy').value,
-    entry: document.getElementById('t_entry').value,
-    risk: parseFloat(document.getElementById('t_risk').value) || 0,
-    sl: parseFloat(document.getElementById('t_sl').value) || 0,
+    id:uid(), ticker, company, dir, date, qty, price, fee,
+    sl, risk:riskPct,
     slreason: document.getElementById('t_slreason').value,
-    volume: document.getElementById('t_vol').value,
+    vol: document.getElementById('t_vol').value,
     bar: document.getElementById('t_bar').value,
+    planId: document.getElementById('t_plan').value,
     comments: document.getElementById('t_comments').value,
   }
   DB.trades = [...DB.trades, trade]
   closeModal('tradeModal')
-  // clear fields
-  ['t_ticker','t_company','t_qty','t_price','t_fee','t_risk','t_sl','t_slreason','t_vol','t_bar','t_comments'].forEach(id=>document.getElementById(id).value='')
+  ;['t_ticker','t_company','t_qty','t_price','t_fee','t_sl','t_slreason','t_vol','t_bar','t_comments'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value='' })
   document.getElementById('t_total').textContent = '$0.00'
   renderAll()
   toast('Trade recorded ✓')
@@ -1505,39 +1237,44 @@ function calcTotal() {
   const price = parseFloat(document.getElementById('t_price')?.value)||0
   const fee = parseFloat(document.getElementById('t_fee')?.value)||0
   const dir = document.getElementById('t_dir')?.value
-  const gross = qty * price
-  const total = dir==='buy' ? gross + fee : gross - fee
-  document.getElementById('t_total').textContent = fmt(total)
+  const total = dir==='buy' ? qty*price+fee : qty*price-fee
+  const capital = getCapital()
+  const cpStr = capital > 0 && dir==='buy' ? ` (${(total/capital*100).toFixed(1)}% of capital)` : ''
+  document.getElementById('t_total').textContent = fmt(total) + cpStr
+  const warn = document.getElementById('capitalWarning')
+  if (warn) warn.classList.toggle('show', capital > 0 && dir==='buy' && total/capital > 0.2)
+  // Auto-calc risk %
+  const sl = parseFloat(document.getElementById('t_sl')?.value)||0
+  const riskEl = document.getElementById('t_risk')
+  if (riskEl) riskEl.value = sl > 0 && capital > 0 && qty > 0 && price > 0
+    ? (Math.abs(price-sl)*qty/capital*100).toFixed(2) : ''
 }
 
 // ============================================================
 // WATCHLIST MODAL
 // ============================================================
 function openWatchModal() {
+  document.getElementById('w_ticker').value = ''
+  document.getElementById('w_company_h').value = ''
+  document.getElementById('w_notes').value = ''
+  const fi = document.getElementById('w_fetchedInfo')
+  if (fi) fi.style.display = 'none'
   document.getElementById('watchModal').classList.add('open')
 }
 
 function saveWatch() {
   const ticker = document.getElementById('w_ticker').value.trim().toUpperCase()
-  const company = document.getElementById('w_company').value.trim()
-  if (!ticker||!company) { toast('Ticker and company name required', true); return }
+  if (!ticker) { toast('Ticker is required', true); return }
+  const company = document.getElementById('w_company_h').value || ticker
   const item = {
     id: uid(), ticker, company,
-    sector: document.getElementById('w_sector').value,
+    industry: document.getElementById('wi_industry')?.textContent?.replace('—','') || '',
     priority: document.getElementById('w_priority').value,
-    pe: parseFloat(document.getElementById('w_pe').value)||null,
-    div: parseFloat(document.getElementById('w_div').value)||null,
-    cap: document.getElementById('w_cap').value,
-    fundNotes: document.getElementById('w_fundNotes').value,
-    trend: document.getElementById('w_trend').value,
-    support: parseFloat(document.getElementById('w_support').value)||null,
-    resist: parseFloat(document.getElementById('w_resist').value)||null,
-    strategy: document.getElementById('w_strategy').value,
-    techNotes: document.getElementById('w_techNotes').value,
+    notes: document.getElementById('w_notes').value,
+    addedAt: new Date().toISOString().split('T')[0],
   }
   DB.watchlist = [...DB.watchlist, item]
   closeModal('watchModal')
-  ;['w_ticker','w_company','w_sector','w_pe','w_div','w_cap','w_fundNotes','w_support','w_resist','w_techNotes'].forEach(id=>document.getElementById(id).value='')
   renderWatchlist()
   toast('Added to watchlist ✓')
 }
@@ -1548,18 +1285,22 @@ function deleteWatch(id) {
   toast('Removed from watchlist')
 }
 
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open')
-}
+function closeModal(id) { document.getElementById(id).classList.remove('open') }
 
 // ============================================================
 // EXPORT CSV
 // ============================================================
 function exportCSV() {
+  const capital = getCapital()
   const trades = DB.trades.slice().sort((a,b)=>b.date.localeCompare(a.date))
   const rows = [
-    ['Date','Ticker','Company','Direction','Qty','Price','Fee','Total','Strategy','Entry Method','Risk %','Stop Loss','Comments','Volume Notes','Bar Notes'],
-    ...trades.map(t=>[t.date,t.ticker,t.company,t.dir,t.qty,t.price,t.fee||0,(t.qty*t.price+(t.dir==='buy'?1:-1)*(t.fee||0)).toFixed(2),stratLabel(t.strategy),entryLabel(t.entry),t.risk||'',t.sl||'',t.comments||'',t.volume||'',t.bar||''])
+    ['Date','Ticker','Company','Direction','Qty','Price','Fee','Total','Capital %','Stop Loss','Risk % Capital','Comments','Volume Notes','Bar Notes','Plan Linked'],
+    ...trades.map(t => {
+      const total = t.qty*t.price+(t.dir==='buy'?1:-1)*(t.fee||0)
+      const cp = capital > 0 && t.dir==='buy' ? (total/capital*100).toFixed(1)+'%' : ''
+      const plan = t.planId ? (DB.plans.find(p=>p.id===t.planId)?.ticker||'') : ''
+      return [t.date,t.ticker,t.company,t.dir,t.qty,t.price,t.fee||0,total.toFixed(2),cp,t.sl||'',t.risk||'',t.comments||'',t.vol||'',t.bar||'',plan]
+    })
   ]
   const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
   const blob = new Blob([csv],{type:'text/csv'})
@@ -1568,19 +1309,137 @@ function exportCSV() {
 }
 
 // ============================================================
+// YAHOO FINANCE — PRICES & SEARCH
+// ============================================================
+const priceCache = {}
+const PROXY = 'https://corsproxy.io/?url='
+
+async function yahooFetch(url) {
+  try {
+    const r = await fetch(url, { mode:'cors' })
+    if (r.ok) return r.json()
+  } catch(_) {}
+  const r = await fetch(PROXY + encodeURIComponent(url))
+  if (!r.ok) throw new Error('fetch failed')
+  return r.json()
+}
+
+async function fetchASXPrice(ticker) {
+  const key = ticker.toUpperCase()
+  if (priceCache[key] && Date.now()-priceCache[key].ts < 5*60*1000) return priceCache[key]
+  try {
+    const d = await yahooFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${key}.AX?interval=1d&range=1d`)
+    const res = d?.chart?.result?.[0]
+    if (!res) return null
+    const m = res.meta
+    const price = m.regularMarketPrice ?? m.previousClose
+    const prev = m.previousClose ?? m.chartPreviousClose
+    const change = prev && prev !== 0 ? (price-prev)/prev*100 : 0
+    const entry = { price, change, name:m.shortName||key, ts:Date.now() }
+    priceCache[key] = entry
+    return entry
+  } catch { return null }
+}
+
+async function fetchMultiplePrices(tickers) {
+  return Promise.all(tickers.map(t => fetchASXPrice(t)))
+}
+
+async function refreshAllPrices() {
+  const btn = document.getElementById('refreshPricesBtn')
+  if (btn) { btn.disabled=true; btn.textContent='⟳ Refreshing...' }
+  Object.keys(priceCache).forEach(k => delete priceCache[k])
+  await renderHoldings()
+  await renderWatchlist()
+  if (btn) { btn.disabled=false; btn.textContent='⟳ Live Prices' }
+  toast('Prices refreshed ✓')
+}
+
+let _sTimer = null
+function onTickerInput(query, tickerEl, companyEl) {
+  const list = document.getElementById(tickerEl + '_list')
+  if (!list) return
+  if (query.length < 1) { list.style.display='none'; return }
+  list.innerHTML = '<div class="ac-loading">Searching ASX...</div>'
+  list.style.display = 'block'
+  clearTimeout(_sTimer)
+  _sTimer = setTimeout(() => searchASX(query, tickerEl, companyEl), 320)
+}
+
+async function searchASX(query, tickerInputId, companyInputId) {
+  const list = document.getElementById(tickerInputId + '_list')
+  if (!list) return
+  try {
+    const d = await yahooFetch(`https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=10&newsCount=0&listsCount=0`)
+    const quotes = (d?.quotes||[]).filter(q => q.exchange==='ASX' || (q.symbol||'').endsWith('.AX'))
+    if (!quotes.length) { list.innerHTML='<div class="ac-loading">No ASX results found</div>'; return }
+    list.innerHTML = quotes.slice(0,8).map(q => {
+      const t = (q.symbol||'').replace(/\.AX$/i,'').toUpperCase()
+      const n = (q.longname||q.shortname||t).replace(/'/g,"&#39;")
+      return `<div class="ac-item" onclick="selectTicker('${t}','${n}','${tickerInputId}','${companyInputId}')">
+        <span class="ac-ticker">${t}</span><span class="ac-name">${n}</span></div>`
+    }).join('')
+    list.style.display = 'block'
+  } catch {
+    list.innerHTML = '<div class="ac-loading">Search unavailable</div>'
+  }
+}
+
+async function selectTicker(ticker, name, tickerInputId, companyInputId) {
+  const tEl = document.getElementById(tickerInputId)
+  const cEl = document.getElementById(companyInputId)
+  const lEl = document.getElementById(tickerInputId + '_list')
+  if (tEl) tEl.value = ticker
+  if (cEl) cEl.value = name
+  if (lEl) lEl.style.display = 'none'
+
+  // Trade modal: pre-fill price
+  if (tickerInputId === 't_ticker') {
+    const pEl = document.getElementById('t_price')
+    if (pEl && !pEl.value) {
+      const p = await fetchASXPrice(ticker)
+      if (p) { pEl.value=p.price.toFixed(3); calcTotal(); toast(`${ticker}: ${fmt(p.price)} (${p.change>=0?'+':''}${p.change.toFixed(2)}%)`) }
+    }
+  }
+
+  // Watchlist modal: fetch and show preview
+  if (tickerInputId === 'w_ticker') {
+    const fi = document.getElementById('w_fetchedInfo')
+    const ni = document.getElementById('wi_name')
+    const pi = document.getElementById('wi_price')
+    const ii = document.getElementById('wi_industry')
+    if (ni) ni.textContent = name
+    if (fi) fi.style.display = 'block'
+    const p = await fetchASXPrice(ticker)
+    if (p && pi) pi.innerHTML = `${fmt(p.price)} <span class="price-tag ${p.change>=0?'price-up':'price-dn'}">${p.change>=0?'+':''}${p.change.toFixed(2)}%</span>`
+    try {
+      const q = await yahooFetch(`https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}.AX?modules=assetProfile,price`)
+      const prof = q?.quoteSummary?.result?.[0]
+      if (prof?.assetProfile?.industry && ii) ii.textContent = prof.assetProfile.industry
+      if (prof?.price?.longName && ni) ni.textContent = prof.price.longName
+      if (prof?.price?.longName && cEl) cEl.value = prof.price.longName
+    } catch(_) {}
+  }
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ac-wrap'))
+    document.querySelectorAll('.ac-list').forEach(l => { l.style.display='none' })
+})
+
+// ============================================================
 // VIEW SWITCHING
 // ============================================================
 function showView(name, navEl) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'))
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'))
+  document.querySelectorAll('.plan-nav-item').forEach(n=>n.classList.remove('active'))
   document.getElementById('view-'+name)?.classList.add('active')
   if (navEl) navEl.classList.add('active')
-  if (window.innerWidth <= 768) toggleSidebar(false)
-  // Render view-specific content
+  if (window.innerWidth<=768) toggleSidebar(false)
   if (name==='performance') renderPerformance()
   if (name==='journal') renderJournal()
   if (name==='watchlist') renderWatchlist()
-  if (name==='plan') loadPlan()
   if (name==='dashboard') { renderRecentTrades(); renderDashboardCharts() }
   if (name==='portfolio') renderHoldings()
 }
@@ -1593,6 +1452,7 @@ function renderAll() {
   renderJournal()
   renderPerformance()
   renderWatchlist()
+  renderPlanNav()
 }
 
 // ============================================================
@@ -1601,9 +1461,8 @@ function renderAll() {
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') !== 'light'
   document.documentElement.setAttribute('data-theme', isDark?'light':'dark')
-  localStorage.setItem('ww_theme', isDark?'light':'dark')
+  localStorage.setItem('tr_theme', isDark?'light':'dark')
   document.getElementById('themeLabel').textContent = isDark ? 'Dark Mode' : 'Light Mode'
-  // Redraw charts
   Object.values(chartInstances).forEach(c=>{ try{c.destroy()}catch{} })
   chartInstances = {}
   renderDashboardCharts()
@@ -1614,36 +1473,25 @@ function toggleTheme() {
 // MOBILE SIDEBAR
 // ============================================================
 function toggleSidebar(force) {
-  const s = document.getElementById('sidebar')
-  const o = document.getElementById('overlay')
-  const isOpen = typeof force==='boolean' ? force : !s.classList.contains('open')
-  s.classList.toggle('open', isOpen)
-  o.classList.toggle('open', isOpen)
-}
-
-// ============================================================
-// GREETING
-// ============================================================
-function setGreeting() {
-  const h = new Date().getHours()
-  const g = h<12?'morning':h<17?'afternoon':'evening'
-  document.getElementById('greetingTitle').textContent = `Good ${g}, Trader 👋`
+  const s = document.getElementById('sidebar'), o = document.getElementById('overlay')
+  const open = typeof force==='boolean' ? force : !s.classList.contains('open')
+  s.classList.toggle('open', open); o.classList.toggle('open', open)
 }
 
 // ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-  // Restore theme
-  const savedTheme = localStorage.getItem('ww_theme') || 'dark'
-  document.documentElement.setAttribute('data-theme', savedTheme)
-  document.getElementById('themeLabel').textContent = savedTheme==='dark' ? 'Light Mode' : 'Dark Mode'
-
+  const theme = localStorage.getItem('tr_theme') || 'dark'
+  document.documentElement.setAttribute('data-theme', theme)
+  document.getElementById('themeLabel').textContent = theme==='dark' ? 'Light Mode' : 'Dark Mode'
   seedData()
-  setGreeting()
+  renderPortfolioSelect()
+  const h = new Date().getHours()
+  document.getElementById('greetingTitle').textContent = `Good ${h<12?'morning':h<17?'afternoon':'evening'}, Trader 👋`
+  const fyYear = new Date().getMonth()>=6 ? new Date().getFullYear() : new Date().getFullYear()-1
+  document.getElementById('fyLabel').textContent = `FY${String(fyYear).slice(2)}/${String(fyYear+1).slice(2)}`
   renderAll()
-
-  // Set today's date on trade modal
   document.getElementById('t_date').value = new Date().toISOString().split('T')[0]
 })
 </script>
