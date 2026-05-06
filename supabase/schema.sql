@@ -10,8 +10,8 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- ============================================================
 -- ENUMS
 -- ============================================================
-CREATE TYPE user_role AS ENUM ('student', 'admin');
-CREATE TYPE subscription_level AS ENUM ('diploma_student', 'graduate', 'instructor');
+CREATE TYPE user_role AS ENUM ('user', 'admin');
+CREATE TYPE subscription_level AS ENUM ('free', 'pro', 'admin');
 CREATE TYPE account_type AS ENUM ('live', 'paper', 'super', 'options', 'other');
 CREATE TYPE trade_direction AS ENUM ('buy', 'sell');
 CREATE TYPE portfolio_type AS ENUM ('growth', 'income', 'balanced', 'speculative');
@@ -48,8 +48,8 @@ CREATE TABLE public.profiles (
   email         TEXT NOT NULL,
   name          TEXT NOT NULL DEFAULT '',
   photo_url     TEXT,
-  role          user_role NOT NULL DEFAULT 'student',
-  subscription_level subscription_level NOT NULL DEFAULT 'diploma_student',
+  role          user_role NOT NULL DEFAULT 'user',
+  subscription_level subscription_level NOT NULL DEFAULT 'free',
   preferred_broker TEXT,
   tax_year_start TEXT NOT NULL DEFAULT '07-01',  -- MM-DD format
   dark_mode     BOOLEAN NOT NULL DEFAULT false,
